@@ -13,9 +13,9 @@ app.use(express.json());
 //cors midleware
 app.use(
   cors({
-    origin: ["http://localhost:3000"],
+    origin: ["http://localhost:5173"],
     credentials: true,
-    methods: ["POST", "GET"],
+    methods: ["POST", "GET", "PUT", "DELETE"],
   }),
 );
 app.use(express.urlencoded({ extended: true }));
