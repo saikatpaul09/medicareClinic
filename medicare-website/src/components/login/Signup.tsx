@@ -1,10 +1,50 @@
+import { useState } from "react";
 import { Box, Divider, TextField, Typography } from "@mui/material";
+import { useMutation } from "@tanstack/react-query";
+import axios from "axios";
 import { Button } from "../button/Button";
 import { roles } from "../../constants";
 import type { SideBarRole } from "../../types";
 import useBoundStore from "../../store";
+
+import { REGISTER_USER } from "../api/mutations";
+
 export const SignUp = () => {
   const openPopup = useBoundStore((state) => state.login.openPopup);
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    role: "patient",
+  });
+
+  const createUserMutation = useMutation({
+    mutationFn: async () => {
+      const formDataToSend = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        password: formData.password,
+        role: "PATIENT",
+      };
+      const response = await axios.post(REGISTER_USER, formDataToSend);
+      return response.data;
+    },
+    onSuccess: (data) => {
+      console.log("User created successfully:", data);
+      alert("User created successfully! Please log in.");
+      openPopup(roles.LOGIN as SideBarRole);
+      // Optionally, you can log the user in immediately after registration
+      // or redirect them to a welcome page.
+    },
+    onError: (error) => {
+      console.error("Error creating user:", error);
+      // Optionally, you can display an error message to the user here.
+    },
+  });
+
+  const btnDisabled = Object.values(formData).some((field) => !field);
   return (
     <Box sx={{ margin: 3 }}>
       <TextField
@@ -13,6 +53,10 @@ export const SignUp = () => {
         variant="outlined"
         fullWidth
         margin="normal"
+        value={formData.firstName}
+        onChange={(e) =>
+          setFormData({ ...formData, firstName: e.target.value })
+        }
       />
       <TextField
         label="Last Name"
@@ -20,6 +64,8 @@ export const SignUp = () => {
         variant="outlined"
         fullWidth
         margin="normal"
+        value={formData.lastName}
+        onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
       />
       <TextField
         label="Email"
@@ -27,6 +73,8 @@ export const SignUp = () => {
         variant="outlined"
         fullWidth
         margin="normal"
+        value={formData.email}
+        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
       />
       <TextField
         label="Password"
@@ -35,12 +83,16 @@ export const SignUp = () => {
         margin="normal"
         type="password"
         required
+        value={formData.password}
+        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
       />
       <Button
         variant="contained"
         color="primary"
         sx={{ marginTop: 2 }}
         fullWidth
+        disabled={btnDisabled}
+        onClick={() => createUserMutation.mutate()}
       >
         Sign Up
       </Button>
