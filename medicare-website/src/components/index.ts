@@ -1,0 +1,10 @@
+export { Section } from "./Section";
+export { Header } from "./Header";
+// export { Footer } from "./Footer";
+export { Carousel } from "./carousel/ReactCarousel";
+export { SearchBySpeciality } from "./search-by-speciality/SearchBySpeciality";
+export { Button } from "./button/Button";
+export { SideBar } from "./SideBar";
+export { Login } from "./login/Login";
+export { SignUp } from "./login/Signup";
+export { ForgotPassword } from "./login/ForgotPassword";

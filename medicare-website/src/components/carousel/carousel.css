@@ -1,0 +1,45 @@
+.carousel-container {
+  position: relative;
+  width: 80%;
+  margin: 40px auto;
+}
+
+.carousel-view {
+  overflow: hidden; /* Hides images outside the frame */
+  border-radius: 10px;
+}
+
+.carousel-track {
+  display: flex;
+  transition: transform 0.5s ease-in-out; /* Smooth slide movement */
+}
+
+.carousel-item {
+  min-width: 100%; /* Each item takes full width of the container */
+  box-sizing: border-box;
+}
+
+.carousel-item img {
+  width: 100%;
+  display: block;
+}
+
+.prev-btn,
+.next-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  cursor: pointer;
+  padding: 10px;
+}
+
+.prev-btn {
+  left: 0;
+}
+.next-btn {
+  right: 0;
+}
