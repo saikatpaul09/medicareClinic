@@ -13,6 +13,7 @@ export const up = (pgm) => {
     id: {
       type: "uuid",
       primaryKey: true,
+      default: pgm.func("gen_random_uuid()"),
     },
     firstName: {
       type: "varchar(255)",
@@ -37,7 +38,6 @@ export const up = (pgm) => {
     },
     phone: {
       type: "varchar(20)",
-      notNull: true,
     },
     createdAt: {
       type: "timestamp",

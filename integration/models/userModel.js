@@ -1,11 +1,18 @@
 import pool from "../config/db.js";
 import bcrypt from "bcrypt";
 
-export const createUserService = async (name, username, password) => {
+export const createUserService = async (
+  firstName,
+  lastName,
+  email,
+  password,
+  role,
+  phone,
+) => {
   const hashedPassword = await bcrypt.hash(password, 10);
   const query =
-    "INSERT INTO users (name, username, password) VALUES ($1, $2, $3) RETURNING id";
-  const values = [name, username, hashedPassword];
+    'INSERT INTO users ("firstName", "lastName", "email", "password", "role", "phone") VALUES ($1, $2, $3, $4, $5, $6) RETURNING id';
+  const values = [firstName, lastName, email, hashedPassword, role, phone];
   const result = await pool.query(query, values);
   return result.rows[0].id;
 };

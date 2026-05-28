@@ -14,9 +14,16 @@ const handleResponse = (res, status, message, data) => {
 };
 
 export const registerUserController = asyncHandler(async (req, res) => {
-  const { userName, email, password } = req.body;
+  const { firstName, lastName, email, password, role, phone } = req.body;
   try {
-    const user = await createUserService(userName, email, password);
+    const user = await createUserService(
+      firstName,
+      lastName,
+      email,
+      password,
+      role,
+      phone,
+    );
     handleResponse(res, 201, "User registered successfully", {
       userId: user.id,
     });
