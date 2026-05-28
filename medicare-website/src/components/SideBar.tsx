@@ -6,7 +6,8 @@ import useBoundStore from "../store";
 
 type Role = "" | "LOGIN" | "SIGNUP" | "FORGOT_PASSWORD" | "PROFILE";
 export const SideBar = ({ role }: { role: Role }) => {
-  const { title, component: Component } = sideBarContent[role] || {};
+  const { title, component: Component } =
+    sideBarContent?.[role as keyof typeof sideBarContent] || {};
   const closePopup = useBoundStore((state) => state.login.closePopup);
   return (
     <Box

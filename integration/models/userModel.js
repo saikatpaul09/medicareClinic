@@ -1,4 +1,4 @@
-import pool from "../config/db";
+import pool from "../config/db.js";
 import bcrypt from "bcrypt";
 
 export const createUserService = async (name, username, password) => {

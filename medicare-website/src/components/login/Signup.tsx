@@ -8,6 +8,20 @@ export const SignUp = () => {
   return (
     <Box sx={{ margin: 3 }}>
       <TextField
+        label="First Name"
+        required
+        variant="outlined"
+        fullWidth
+        margin="normal"
+      />
+      <TextField
+        label="Last Name"
+        required
+        variant="outlined"
+        fullWidth
+        margin="normal"
+      />
+      <TextField
         label="Email"
         required
         variant="outlined"

@@ -1,9 +1,9 @@
-import asyncHandler from "../middlewares/asyncHandler";
+import asyncHandler from "../middlewares/asyncHandler.js";
 import {
   authenticateUserService,
   createUserService,
-} from "../models/userModel";
-import generateToken from "../utils/generateToken";
+} from "../models/userModel.js";
+import generateToken from "../utils/generateToken.js";
 
 const handleResponse = (res, status, message, data) => {
   res.status(status).json({
