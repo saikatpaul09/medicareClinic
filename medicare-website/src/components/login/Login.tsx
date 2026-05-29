@@ -1,4 +1,5 @@
-import { Box, Divider, TextField, Typography } from "@mui/material";
+import { Box, Divider, Typography } from "@mui/material";
+import { TextField } from "../text-field/TextField";
 import { Button } from "../button/Button";
 import theme from "../../theme";
 import useBoundStore from "../../store";
