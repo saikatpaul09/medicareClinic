@@ -3,9 +3,9 @@ import dotenv from "dotenv";
 import cors from "cors";
 import userRoutes from "./routes/userRoutes.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
-const app = express();
 
 dotenv.config();
+const app = express();
 const port = process.env.PORT || 3000;
 // middle wares
 // body parser middleware

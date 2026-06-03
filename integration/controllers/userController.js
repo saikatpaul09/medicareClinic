@@ -36,11 +36,27 @@ export const authenticateUserController = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
   try {
     const user = await authenticateUserService(email, password);
-    generateToken(res, user.id);
-    handleResponse(res, 200, "User authenticated successfully", {
-      userId: user.id,
-    });
+    if (user) {
+      generateToken(res, user.id);
+      handleResponse(res, 200, "User authenticated successfully", {
+        _id: user.id,
+        name: `${user.firstName} ${user.lastName}`,
+        email: user.email,
+        role: user.role,
+      });
+    } else {
+      handleResponse(res, 401, "Invalid credentials");
+    }
   } catch (error) {
     handleResponse(res, 401, error.message);
+  }
+});
+
+export const logoutUserController = asyncHandler(async (req, res) => {
+  try {
+    res.clearCookie("jwt", { httpOnly: true });
+    res.status(200).json({ message: "Logged out successfully" });
+  } catch (error) {
+    handleResponse(res, 500, error.message);
   }
 });
