@@ -9,3 +9,4 @@ export { Login } from "./login/Login";
 export { SignUp } from "./login/Signup";
 export { ForgotPassword } from "./login/ForgotPassword";
 export { TextField } from "./text-field/TextField";
+export { MyAccount } from "./my-account/MyAccount";

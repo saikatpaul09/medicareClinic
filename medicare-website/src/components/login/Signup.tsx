@@ -6,8 +6,8 @@ import { Button } from "../button/Button";
 import { roles } from "../../constants";
 import type { SideBarRole } from "../../types";
 import useBoundStore from "../../store";
-import { REGISTER_USER } from "../api/mutations";
-import apiClient from "../api/client";
+import { REGISTER_USER } from "../../api/mutations";
+import { apiClient } from "../../api/client";
 
 export const SignUp = () => {
   const openPopup = useBoundStore((state) => state.login.openPopup);
@@ -19,7 +19,7 @@ export const SignUp = () => {
     role: "patient",
   });
 
-  const createUserMutation = useMutation({
+  const { mutate, isPending } = useMutation({
     mutationFn: async () => {
       const formDataToSend = {
         firstName: formData.firstName,
@@ -92,7 +92,8 @@ export const SignUp = () => {
         sx={{ marginTop: 2 }}
         fullWidth
         disabled={btnDisabled}
-        onClick={() => createUserMutation.mutate()}
+        loading={isPending}
+        onClick={() => mutate()}
       >
         Sign Up
       </Button>

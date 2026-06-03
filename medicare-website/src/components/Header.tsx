@@ -3,6 +3,7 @@ import { Box, FormControl, Grid, InputLabel, MenuItem } from "@mui/material";
 import { Select } from "@mui/material";
 import { AutocompleteSearchBar } from "./auto-complete/AutoComplete";
 import PermIdentityIcon from "@mui/icons-material/PermIdentity";
+import AccountCircleRoundedIcon from "@mui/icons-material/AccountCircleRounded";
 import theme from "../theme";
 import { Button } from "./button/Button";
 import useBoundStore from "../store";
@@ -13,7 +14,7 @@ import type { SideBarRole } from "../types";
 export const Header = () => {
   const sideBarRole = useBoundStore((state) => state.login.sideBarRole);
   const openPopup = useBoundStore((state) => state.login.openPopup);
-
+  const userInfo = JSON.parse(localStorage.getItem("userInfo"));
   return (
     <header style={{ borderBottom: `1px solid ${theme.palette.divider}` }}>
       <Box
@@ -66,9 +67,15 @@ export const Header = () => {
           </Grid>
           <Grid size={{ xs: 2, sm: 2 }}>
             <Button
-              variant="contained"
+              variant={userInfo ? "text" : "contained"}
               color="primary"
-              onClick={() => openPopup(roles.LOGIN as SideBarRole)}
+              onClick={() =>
+                openPopup(
+                  userInfo
+                    ? (roles.PROFILE as SideBarRole)
+                    : (roles.LOGIN as SideBarRole),
+                )
+              }
               sx={{
                 marginTop: "30px",
                 marginLeft: "60px",
@@ -79,8 +86,18 @@ export const Header = () => {
                 width: "120px",
               }}
             >
-              <PermIdentityIcon />
-              Login
+              {userInfo ? (
+                <>
+                  <AccountCircleRoundedIcon
+                    sx={{ width: "40px", height: "40px" }}
+                  />
+                </>
+              ) : (
+                <>
+                  <PermIdentityIcon />
+                  Login
+                </>
+              )}
             </Button>
           </Grid>
         </Grid>
