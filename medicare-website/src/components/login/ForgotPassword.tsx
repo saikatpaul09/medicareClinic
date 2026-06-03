@@ -1,8 +1,9 @@
-import { Box, Divider, TextField, Typography } from "@mui/material";
+import { Box, Divider, Typography } from "@mui/material";
 import { Button } from "../button/Button";
 import type { SideBarRole } from "../../types";
 import useBoundStore from "../../store";
 import { roles } from "../../constants";
+import { TextField } from "../text-field/TextField";
 export const ForgotPassword = () => {
   const openPopup = useBoundStore((state) => state.login.openPopup);
   return (

@@ -29,5 +29,5 @@ export const authenticateUserService = async (email, password) => {
   if (!isMatch) {
     throw new Error("Invalid credentials");
   }
-  return user.id;
+  return user;
 };

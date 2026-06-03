@@ -1,13 +1,13 @@
 import { useState } from "react";
-import { Box, Divider, TextField, Typography } from "@mui/material";
+import { Box, Divider, Typography } from "@mui/material";
+import { TextField } from "../text-field/TextField";
 import { useMutation } from "@tanstack/react-query";
-import axios from "axios";
 import { Button } from "../button/Button";
 import { roles } from "../../constants";
 import type { SideBarRole } from "../../types";
 import useBoundStore from "../../store";
-
-import { REGISTER_USER } from "../api/mutations";
+import { REGISTER_USER } from "../../api/mutations";
+import { apiClient } from "../../api/client";
 
 export const SignUp = () => {
   const openPopup = useBoundStore((state) => state.login.openPopup);
@@ -19,7 +19,7 @@ export const SignUp = () => {
     role: "patient",
   });
 
-  const createUserMutation = useMutation({
+  const { mutate, isPending } = useMutation({
     mutationFn: async () => {
       const formDataToSend = {
         firstName: formData.firstName,
@@ -28,7 +28,7 @@ export const SignUp = () => {
         password: formData.password,
         role: "PATIENT",
       };
-      const response = await axios.post(REGISTER_USER, formDataToSend);
+      const response = await apiClient.post(REGISTER_USER, formDataToSend);
       return response.data;
     },
     onSuccess: (data) => {
@@ -92,7 +92,8 @@ export const SignUp = () => {
         sx={{ marginTop: 2 }}
         fullWidth
         disabled={btnDisabled}
-        onClick={() => createUserMutation.mutate()}
+        loading={isPending}
+        onClick={() => mutate()}
       >
         Sign Up
       </Button>

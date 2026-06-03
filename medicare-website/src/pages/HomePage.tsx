@@ -8,7 +8,6 @@ export const HomePage = () => {
   return (
     <>
       <Carousel items={carouselItems} />
-
       <Section
         title="Browse By Speciality"
         description={

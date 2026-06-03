@@ -39,12 +39,12 @@ export const SideBar = ({ role }: { role: Role }) => {
           <CloseOutlinedIcon />
         </Box>
         <Divider sx={{ margin: `${theme.spacing(2)} 0` }} />
-        <Typography variant="h5" sx={{ margin: theme.spacing(3) }}>
-          {title}
-        </Typography>
-        <Typography variant="body1">
-          <Component />
-        </Typography>
+        {role !== "PROFILE" && (
+          <Typography variant="h5" sx={{ margin: theme.spacing(3) }}>
+            {title}
+          </Typography>
+        )}
+        <Component />
       </Box>
     </Box>
   );
