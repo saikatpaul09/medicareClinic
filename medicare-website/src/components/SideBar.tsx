@@ -2,13 +2,13 @@ import { Box, Divider, Typography } from "@mui/material";
 import theme from "../theme";
 import CloseOutlinedIcon from "@mui/icons-material/CloseOutlined";
 import { sideBarContent } from "../constants";
-import useBoundStore from "../store";
+import useAuthStore from "../store";
 
 type Role = "" | "LOGIN" | "SIGNUP" | "FORGOT_PASSWORD" | "PROFILE";
 export const SideBar = ({ role }: { role: Role }) => {
   const { title, component: Component } =
     sideBarContent?.[role as keyof typeof sideBarContent] || {};
-  const closePopup = useBoundStore((state) => state.login.closePopup);
+  const closePopup = useAuthStore((state) => state.login.closePopup);
   return (
     <Box
       sx={{

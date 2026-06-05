@@ -1,8 +1,8 @@
 import { create } from "zustand";
 import createLoginSlice, { type ILoginSlice } from "./lib/login.slice";
 
-const useBoundStore = create<ILoginSlice>()((...args) => ({
+const useAuthStore = create<ILoginSlice>()((...args) => ({
   ...createLoginSlice(...args),
 }));
 
-export default useBoundStore;
+export default useAuthStore;

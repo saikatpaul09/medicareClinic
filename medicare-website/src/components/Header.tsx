@@ -6,15 +6,16 @@ import PermIdentityIcon from "@mui/icons-material/PermIdentity";
 import AccountCircleRoundedIcon from "@mui/icons-material/AccountCircleRounded";
 import theme from "../theme";
 import { Button } from "./button/Button";
-import useBoundStore from "../store";
+import useAuthStore from "../store";
 import { SideBar } from "./SideBar";
 import { roles } from "../constants";
 import type { SideBarRole } from "../types";
 
 export const Header = () => {
-  const sideBarRole = useBoundStore((state) => state.login.sideBarRole);
-  const openPopup = useBoundStore((state) => state.login.openPopup);
-  const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+  const sideBarRole = useAuthStore((state) => state.login.sideBarRole);
+  const openPopup = useAuthStore((state) => state.login.openPopup);
+  const userInfo = useAuthStore((state) => state.login.userInfo);
+
   return (
     <header style={{ borderBottom: `1px solid ${theme.palette.divider}` }}>
       <Box

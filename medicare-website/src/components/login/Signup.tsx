@@ -31,8 +31,7 @@ export const SignUp = () => {
       const response = await apiClient.post(REGISTER_USER, formDataToSend);
       return response.data;
     },
-    onSuccess: (data) => {
-      console.log("User created successfully:", data);
+    onSuccess: () => {
       alert("User created successfully! Please log in.");
       openPopup(roles.LOGIN as SideBarRole);
       // Optionally, you can log the user in immediately after registration

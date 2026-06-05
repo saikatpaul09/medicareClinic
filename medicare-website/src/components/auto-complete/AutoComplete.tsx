@@ -18,7 +18,6 @@ export const AutocompleteSearchBar = ({
   const [input, setInput] = useState("");
 
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log(e.target.value);
     setInput(e.target.value.toLowerCase());
     onChange(e.target.value);
   };

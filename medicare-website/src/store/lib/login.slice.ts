@@ -1,17 +1,25 @@
 import type { StateCreator } from "zustand";
 import { type SideBarRole } from "../..//types";
 
+type userInfo = {
+  token: string;
+  user: {
+    _id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    role: string;
+  };
+};
+
 type LoginStoreState = {
   sideBarRole: SideBarRole;
+  userInfo: userInfo;
 };
 
 type LoginStoreActions = {
-  login: (payload: {
-    _id: string;
-    name: string;
-    email: string;
-    role: string;
-  }) => void;
+  setUserInfo: (payload: userInfo) => void;
+  clearUserInfo: () => void;
   logout: () => void;
   openPopup: (role: SideBarRole) => void;
   closePopup: () => void;
@@ -24,8 +32,23 @@ export interface ILoginSlice {
 const createLoginSlice: StateCreator<ILoginSlice> = (set) => ({
   login: {
     sideBarRole: "",
-    login: (payload) =>
-      localStorage.setItem("userInfo", JSON.stringify(payload)),
+    userInfo: null,
+    setUserInfo: (payload) => {
+      set((state) => ({
+        login: {
+          ...state.login,
+          userInfo: payload,
+        },
+      }));
+    },
+    clearUserInfo: () => {
+      set((state) => ({
+        login: {
+          ...state.login,
+          userInfo: null,
+        },
+      }));
+    },
     logout: () => {
       set((state) => ({ login: { ...state.login, sideBarRole: "" } }));
       localStorage.removeItem("userInfo");

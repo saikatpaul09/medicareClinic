@@ -1,11 +1,11 @@
 import { Box, Divider, Typography } from "@mui/material";
 import { Button } from "../button/Button";
 import type { SideBarRole } from "../../types";
-import useBoundStore from "../../store";
+import useAuthStore from "../../store";
 import { roles } from "../../constants";
 import { TextField } from "../text-field/TextField";
 export const ForgotPassword = () => {
-  const openPopup = useBoundStore((state) => state.login.openPopup);
+  const openPopup = useAuthStore((state) => state.login.openPopup);
   return (
     <Box sx={{ margin: 3 }}>
       <TextField

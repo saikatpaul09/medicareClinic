@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import userRoutes from "./routes/userRoutes.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
+import cookieParser from "cookie-parser";
 
 dotenv.config();
 const app = express();
@@ -10,6 +11,7 @@ const port = process.env.PORT || 3000;
 // middle wares
 // body parser middleware
 app.use(express.json());
+
 //cors midleware
 app.use(
   cors({
@@ -19,6 +21,7 @@ app.use(
   }),
 );
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 //middleware for error handling
 app.use(errorHandler);
 //Routes

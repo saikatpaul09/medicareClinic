@@ -7,15 +7,15 @@ import EventAvailableRoundedIcon from "@mui/icons-material/EventAvailableRounded
 import { useMutation } from "@tanstack/react-query";
 import { apiClient } from "../../api/client";
 import { LOGOUT_USER } from "../../api/mutations";
-import useBoundStore from "../../store";
+import useAuthStore from "../../store";
 export const MyAccount = () => {
-  const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
-  const closePopup = useBoundStore((state) => state.login.closePopup);
-  const shortName = userInfo?.name
+  const { userInfo, clearUserInfo } = useAuthStore((state) => state.login);
+  const closePopup = useAuthStore((state) => state.login.closePopup);
+  const user = userInfo?.user;
+  const shortName = `${user?.firstName} ${user?.lastName}`
     ?.split(" ")
     .map((name: string) => name[0])
     .join("");
-
   const { mutate: logout } = useMutation({
     mutationKey: ["logout"],
     mutationFn: async () => {
@@ -32,7 +32,7 @@ export const MyAccount = () => {
 
   const onLogoutHandler = () => {
     logout();
-    localStorage.removeItem("userInfo");
+    clearUserInfo();
     closePopup();
   };
 
@@ -88,9 +88,11 @@ export const MyAccount = () => {
           {shortName}
         </Box>
         <Box>
-          <Typography variant="h6">{userInfo?.name}</Typography>
+          <Typography variant="h6">
+            {user?.firstName} {user?.lastName}
+          </Typography>
           <Typography variant="body2" color="text.secondary">
-            {userInfo?.email}
+            {user?.email}
           </Typography>
         </Box>
       </Box>

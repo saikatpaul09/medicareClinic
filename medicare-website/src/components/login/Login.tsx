@@ -3,10 +3,10 @@ import { useMutation } from "@tanstack/react-query";
 import { TextField } from "../text-field/TextField";
 import { Button } from "../button/Button";
 import theme from "../../theme";
-import useBoundStore from "../../store";
+import useAuthStore from "../../store";
 import { roles } from "../../constants";
 import { type SideBarRole } from "../../types";
-import { apiClient } from "../../api/client";
+import { apiClientWithAuth } from "../../api/client";
 import { LOGIN_USER } from "../../api/mutations";
 import { useState } from "react";
 export const Login = () => {
@@ -14,11 +14,11 @@ export const Login = () => {
     email: "",
     password: "",
   });
-  const { login, closePopup } = useBoundStore((state) => state.login);
+  const { setUserInfo, closePopup } = useAuthStore((state) => state.login);
   const { mutate: loginUser, isPending } = useMutation({
     mutationKey: ["login"],
     mutationFn: async () => {
-      const response = await apiClient.post(LOGIN_USER, {
+      const response = await apiClientWithAuth.post(LOGIN_USER, {
         email: formData.email,
         password: formData.password,
       });
@@ -26,7 +26,7 @@ export const Login = () => {
     },
     onSuccess: (data) => {
       alert("Login successful! Welcome back.");
-      login(data.data);
+      setUserInfo(data.data);
       closePopup();
     },
     onError: (error) => {
@@ -36,7 +36,7 @@ export const Login = () => {
     },
   });
 
-  const openPopup = useBoundStore((state) => state.login.openPopup);
+  const openPopup = useAuthStore((state) => state.login.openPopup);
   const btnDisabled = Object.values(formData).some((field) => !field);
   return (
     <Box sx={{ margin: 3 }}>

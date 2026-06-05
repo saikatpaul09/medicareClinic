@@ -31,3 +31,11 @@ export const authenticateUserService = async (email, password) => {
   }
   return user;
 };
+
+export const getUserByIdService = async (userId) => {
+  const query =
+    'SELECT id, "firstName", "lastName", "email", "role" FROM users WHERE id = $1';
+  const values = [userId];
+  const result = await pool.query(query, values);
+  return result.rows[0];
+};
