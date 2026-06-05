@@ -31,6 +31,19 @@ export const authenticateUserService = async (email, password) => {
   }
   return user;
 };
+export const saveTokenUserService = async (user, hashToken) => {
+  const expiryDate = new Date(
+    Date.now() + parseInt(process.env.JWT_REFRESH_SECRET_EXPIRY),
+  );
+  console.log(user, hashToken);
+  const query =
+    "INSERT INTO users_refresh_tokens (user_id, token_hash, expires_at) values ($1, $2, $3)";
+  const values = [user.id, hashToken, expiryDate];
+  const result = await pool.query(query, values);
+  if (!result) {
+    throw new Error("Token not saved");
+  }
+};
 
 export const getUserByIdService = async (userId) => {
   const query =

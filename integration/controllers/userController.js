@@ -1,9 +1,11 @@
 import asyncHandler from "../middlewares/asyncHandler.js";
+import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import {
   authenticateUserService,
   createUserService,
   getUserByIdService,
+  saveTokenUserService,
 } from "../models/userModel.js";
 import { generateToken, generateRefreshToken } from "../utils/generateToken.js";
 
@@ -37,11 +39,13 @@ export const registerUserController = asyncHandler(async (req, res) => {
 
 export const authenticateUserController = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
+
   try {
     const user = await authenticateUserService(email, password);
     if (user) {
       const token = generateToken(user);
       const refreshToken = generateRefreshToken(user);
+      const tokenHash = await bcrypt.hash(refreshToken, 10);
       refreshTokens.push(refreshToken);
       res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
@@ -49,6 +53,7 @@ export const authenticateUserController = asyncHandler(async (req, res) => {
         sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
         maxAge: process.env.JWT_REFRESH_SECRET_EXPIRY, // Convert to milliseconds
       });
+      await saveTokenUserService(user, tokenHash);
       handleResponse(res, 200, "Authentication successful", {
         token,
         user: {
