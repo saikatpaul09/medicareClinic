@@ -97,7 +97,9 @@ export const refreshTokenController = asyncHandler(async (req, res) => {
 
 export const logoutUserController = asyncHandler(async (req, res) => {
   try {
-    res.clearCookie("refreshToken", { httpOnly: true });
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+    });
     res.status(200).json({ message: "Logged out successfully" });
   } catch (error) {
     handleResponse(res, 500, error.message);

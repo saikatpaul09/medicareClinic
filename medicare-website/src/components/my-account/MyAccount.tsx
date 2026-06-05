@@ -5,7 +5,7 @@ import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import AudioFileRoundedIcon from "@mui/icons-material/AudioFileRounded";
 import EventAvailableRoundedIcon from "@mui/icons-material/EventAvailableRounded";
 import { useMutation } from "@tanstack/react-query";
-import { apiClient } from "../../api/client";
+import { apiClientWithAuth } from "../../api/client";
 import { LOGOUT_USER } from "../../api/mutations";
 import useAuthStore from "../../store";
 export const MyAccount = () => {
@@ -19,7 +19,7 @@ export const MyAccount = () => {
   const { mutate: logout } = useMutation({
     mutationKey: ["logout"],
     mutationFn: async () => {
-      const response = await apiClient.post(LOGOUT_USER);
+      const response = await apiClientWithAuth.post(LOGOUT_USER);
       return response.data;
     },
     onSuccess: () => {
