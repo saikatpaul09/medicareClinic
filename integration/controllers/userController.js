@@ -48,10 +48,6 @@ export const authenticateUserController = asyncHandler(async (req, res) => {
         secure: process.env.NODE_ENV === "production",
         sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
         maxAge: process.env.JWT_REFRESH_SECRET_EXPIRY, // Convert to milliseconds
-        domain:
-          process.env.NODE_ENV === "production"
-            ? "medicare-clinic.onrender.com"
-            : "localhost",
       });
       handleResponse(res, 200, "Authentication successful", {
         token,
