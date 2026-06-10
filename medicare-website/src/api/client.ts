@@ -48,21 +48,10 @@ apiClientWithAuth.interceptors.response.use(
       try {
         const response = await apiRefresh.post(REFRESH_TOKEN);
         const newAccessToken = response.data.accessToken;
-        useAuthStore.setState((state) => ({
-          login: {
-            ...state.login,
-            userInfo: {
-              ...state.login?.userInfo,
-              token: newAccessToken,
-            },
-          },
-        }));
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
         return apiClientWithAuth(originalRequest);
       } catch (refreshError) {
-        useAuthStore.setState({
-          login: null,
-        });
+        console.log(refreshError, "Error in refreshing");
         return Promise.reject(refreshError);
       }
     }

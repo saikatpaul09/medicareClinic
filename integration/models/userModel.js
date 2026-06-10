@@ -10,6 +10,12 @@ export const createUserService = async (
   phone,
 ) => {
   const hashedPassword = await bcrypt.hash(password, 10);
+  const userCheck = await pool.query("SELECT * from users WHERE email = $1", [
+    email,
+  ]);
+  if (userCheck.rows.length > 0) {
+    throw new Error("Email already in use");
+  }
   const query =
     'INSERT INTO users ("firstName", "lastName", "email", "password", "role", "phone") VALUES ($1, $2, $3, $4, $5, $6) RETURNING id';
   const values = [firstName, lastName, email, hashedPassword, role, phone];

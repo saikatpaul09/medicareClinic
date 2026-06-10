@@ -1,5 +1,4 @@
 import asyncHandler from "../middlewares/asyncHandler.js";
-import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import {
   authenticateUserService,
@@ -11,7 +10,6 @@ import {
 } from "../models/userModel.js";
 import { generateToken, generateRefreshToken } from "../utils/generateToken.js";
 
-let refreshTokens = [];
 const handleResponse = (res, status, message, data) => {
   res.status(status).json({
     status,

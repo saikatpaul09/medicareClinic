@@ -39,7 +39,7 @@ export const SignUp = () => {
     },
     onError: (error) => {
       console.error("Error creating user:", error);
-      // Optionally, you can display an error message to the user here.
+      alert(`Error creating user:", ${error.message}`);
     },
   });
 
