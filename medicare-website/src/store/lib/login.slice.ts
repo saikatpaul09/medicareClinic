@@ -4,7 +4,7 @@ import { type SideBarRole } from "../..//types";
 type userInfo = {
   token: string;
   user: {
-    _id: string;
+    id: string;
     firstName: string;
     lastName: string;
     email: string;

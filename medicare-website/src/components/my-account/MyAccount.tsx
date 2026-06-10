@@ -19,7 +19,9 @@ export const MyAccount = () => {
   const { mutate: logout } = useMutation({
     mutationKey: ["logout"],
     mutationFn: async () => {
-      const response = await apiClientWithAuth.post(LOGOUT_USER);
+      const response = await apiClientWithAuth.post(LOGOUT_USER, {
+        userId: user.id,
+      });
       return response.data;
     },
     onSuccess: () => {

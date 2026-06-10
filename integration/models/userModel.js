@@ -1,6 +1,6 @@
 import pool from "../config/db.js";
 import bcrypt from "bcrypt";
-
+import crypto from "crypto";
 export const createUserService = async (
   firstName,
   lastName,
@@ -31,11 +31,24 @@ export const authenticateUserService = async (email, password) => {
   }
   return user;
 };
+
+export const refreshTokenService = async (refreshToken) => {
+  const hashedToken = crypto
+    .createHash("sha256")
+    .update(refreshToken)
+    .digest("hex");
+  const query =
+    "SELECT * FROM users_refresh_tokens WHERE token_hash = $1 AND is_revoked = FALSE AND expires_at > NOW()";
+  const values = [hashedToken];
+  const result = await pool.query(query, values);
+  const tokenRecord = result.rows[0];
+  return tokenRecord;
+};
+
 export const saveTokenUserService = async (user, hashToken) => {
   const expiryDate = new Date(
     Date.now() + parseInt(process.env.JWT_REFRESH_SECRET_EXPIRY),
   );
-  console.log(user, hashToken);
   const query =
     "INSERT INTO users_refresh_tokens (user_id, token_hash, expires_at) values ($1, $2, $3)";
   const values = [user.id, hashToken, expiryDate];
@@ -51,4 +64,19 @@ export const getUserByIdService = async (userId) => {
   const values = [userId];
   const result = await pool.query(query, values);
   return result.rows[0];
+};
+
+export const tokenLogoutService = async (refreshToken, userId) => {
+  const hashedToken = crypto
+    .createHash("sha256")
+    .update(refreshToken)
+    .digest("hex");
+  const result = await pool.query(
+    "DELETE FROM users_refresh_tokens WHERE user_id = $1 AND is_revoked = false AND token_hash = $2 RETURNING *",
+    [userId, hashedToken],
+  );
+  if (!result) {
+    throw new Error("invalid refresh token or user Id");
+  }
+  return result.rows;
 };

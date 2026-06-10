@@ -6,6 +6,8 @@ import {
   createUserService,
   getUserByIdService,
   saveTokenUserService,
+  tokenLogoutService,
+  refreshTokenService,
 } from "../models/userModel.js";
 import { generateToken, generateRefreshToken } from "../utils/generateToken.js";
 
@@ -39,15 +41,13 @@ export const registerUserController = asyncHandler(async (req, res) => {
 
 export const authenticateUserController = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
-
   try {
     const user = await authenticateUserService(email, password);
+
     if (user) {
       const token = generateToken(user);
-      const refreshToken = generateRefreshToken(user);
-      const tokenHash = await bcrypt.hash(refreshToken, 10);
-      refreshTokens.push(refreshToken);
-      res.cookie("refreshToken", refreshToken, {
+      const { rawRefreshToken, tokenHash } = generateRefreshToken();
+      res.cookie("refreshToken", rawRefreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
@@ -74,18 +74,30 @@ export const authenticateUserController = asyncHandler(async (req, res) => {
 
 export const refreshTokenController = asyncHandler(async (req, res) => {
   const refreshToken = req.cookies.refreshToken;
-  if (!refreshToken || !refreshTokens.includes(refreshToken)) {
+  if (!refreshToken) {
     return handleResponse(res, 403, "Forbidden");
   }
-  jwt.verify(
-    refreshToken,
-    process.env.JWT_REFRESH_SECRET,
-    async (err, user) => {
-      if (err) {
-        return handleResponse(res, 403, "Forbidden");
-      }
-      const userData = await getUserByIdService(user.userId);
-      const newAccessToken = generateToken(user);
+  try {
+    const result = await refreshTokenService(refreshToken);
+    if (!result) {
+      res.clearCookie("refreshToken", {
+        httpOnly: true,
+      });
+      handleResponse(
+        res,
+        400,
+        "Bad request, session expired, please login again",
+      );
+    }
+    if (result) {
+      const newAccessToken = jwt.sign(
+        { userId: result.user_id },
+        process.env.JWT_SECRET,
+        {
+          expiresIn: process.env.JWT_SECRET_EXPIRY,
+        },
+      );
+      const userData = await getUserByIdService(result.user_id);
       handleResponse(res, 200, "Token refreshed successfully", {
         token: newAccessToken,
         user: {
@@ -96,16 +108,26 @@ export const refreshTokenController = asyncHandler(async (req, res) => {
           role: userData.role,
         },
       });
-    },
-  );
+    }
+  } catch (error) {
+    handleResponse(res, 401, error.message);
+  }
 });
 
 export const logoutUserController = asyncHandler(async (req, res) => {
+  const refreshToken = req.cookies.refreshToken;
+  const { userId } = req.body;
+  if (!userId || !refreshToken) {
+    handleResponse(res, 400, "User Id or refresh token not provided");
+  }
   try {
+    const result = await tokenLogoutService(refreshToken, userId);
     res.clearCookie("refreshToken", {
       httpOnly: true,
     });
-    res.status(200).json({ message: "Logged out successfully" });
+    if (result.length == 0) {
+      handleResponse(res, 200, "Logged out successfully");
+    }
   } catch (error) {
     handleResponse(res, 500, error.message);
   }
