@@ -3,7 +3,7 @@ import { Box, Divider, Typography } from "@mui/material";
 import { TextField } from "../text-field/TextField";
 import { useMutation } from "@tanstack/react-query";
 import { Button } from "../button/Button";
-import { roles } from "../../constants";
+import { EMAIL_REGEX, roles } from "../../constants";
 import type { SideBarRole } from "../../types";
 import useBoundStore from "../../store";
 import { REGISTER_USER } from "../../api/mutations";
@@ -11,6 +11,7 @@ import { apiClient } from "../../api/client";
 
 export const SignUp = () => {
   const openPopup = useBoundStore((state) => state.login.openPopup);
+  const [error, setError] = useState("");
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -43,7 +44,8 @@ export const SignUp = () => {
     },
   });
 
-  const btnDisabled = Object.values(formData).some((field) => !field);
+  const btnDisabled =
+    Object.values(formData).some((field) => !field) && !!error;
   return (
     <Box sx={{ margin: 3 }}>
       <TextField
@@ -67,12 +69,24 @@ export const SignUp = () => {
         onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
       />
       <TextField
-        label="Email"
+        label={error ? "Please enter proper email Id" : "Email"}
         required
         variant="outlined"
         fullWidth
         margin="normal"
+        error={!!error}
         value={formData.email}
+        onBlur={() => {
+          // Trim whitespace to handle accidental trailing spaces
+          const trimmedEmail = formData.email.trim();
+          if (!trimmedEmail) {
+            setError("Email address is required.");
+          } else if (!EMAIL_REGEX.test(trimmedEmail)) {
+            setError("Please enter a valid email address.");
+          } else {
+            setError(""); // Clear error if validation passes
+          }
+        }}
         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
       />
       <TextField
