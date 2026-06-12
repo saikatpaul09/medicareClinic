@@ -1,4 +1,7 @@
-import { Autocomplete, Box, InputAdornment, TextField } from "@mui/material";
+import Autocomplete from "@mui/material/Autocomplete";
+import Box from "@mui/material/Box";
+import InputAdornment from "@mui/material/InputAdornment";
+import TextField from "@mui/material/TextField";
 import { Button } from "../button/Button";
 import theme from "../../theme";
 import { Section } from "../Section";

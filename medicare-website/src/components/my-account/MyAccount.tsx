@@ -1,4 +1,6 @@
-import { Box, Typography } from "@mui/material";
+import { useState } from "react";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
 import theme from "../../theme";
 import FamilyRestroomRoundedIcon from "@mui/icons-material/FamilyRestroomRounded";
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
@@ -8,8 +10,11 @@ import { useMutation } from "@tanstack/react-query";
 import { apiClientWithAuth } from "../../api/client";
 import { LOGOUT_USER } from "../../api/mutations";
 import useAuthStore from "../../store";
+import { EditProfile } from "./EditProfile";
+
 export const MyAccount = () => {
   const { userInfo, clearUserInfo } = useAuthStore((state) => state.login);
+  const [openPopup, setOpenPopup] = useState(false);
   const closePopup = useAuthStore((state) => state.login.closePopup);
   const user = userInfo?.user;
   const shortName = `${user?.firstName} ${user?.lastName}`
@@ -38,11 +43,16 @@ export const MyAccount = () => {
     closePopup();
   };
 
+  const editMyProfileHandler = () => {
+    setOpenPopup(true);
+  };
+
   const options = [
     {
-      id: "my-family",
-      label: "My Family",
+      id: "my-account",
+      label: "My Profile",
       icon: <FamilyRestroomRoundedIcon />,
+      onClick: editMyProfileHandler,
     },
     {
       id: "my-appointments",
@@ -63,64 +73,69 @@ export const MyAccount = () => {
   ];
 
   return (
-    <Box sx={{ padding: theme.spacing(2) }}>
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          gap: "8px",
-          background: "#f6f6f6",
-          padding: theme.spacing(2),
-          borderRadius: theme.shape.borderRadius,
-        }}
-      >
+    <>
+      <Box sx={{ padding: theme.spacing(2) }}>
         <Box
           sx={{
             display: "flex",
             alignItems: "center",
-            justifyContent: "center",
-            borderRadius: "50%",
-            width: "40px",
-            height: "40px",
-            backgroundColor: theme.palette.primary.main,
-            color: theme.palette.primary.contrastText,
-            fontWeight: "bold",
+            gap: "8px",
+            background: "#f6f6f6",
+            padding: theme.spacing(2),
+            borderRadius: theme.shape.borderRadius,
           }}
         >
-          {shortName}
-        </Box>
-        <Box>
-          <Typography variant="h6">
-            {user?.firstName} {user?.lastName}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            {user?.email}
-          </Typography>
-        </Box>
-      </Box>
-      <Box sx={{ marginTop: theme.spacing(3) }}>
-        {options.map((option) => (
           <Box
-            key={option.id}
             sx={{
               display: "flex",
               alignItems: "center",
-              padding: theme.spacing(2),
-              borderBottom: `1px solid ${theme.palette.divider}`,
-              cursor: "pointer",
-              "&:last-child": {
-                borderBottom: "none",
-              },
+              justifyContent: "center",
+              borderRadius: "50%",
+              width: "40px",
+              height: "40px",
+              backgroundColor: theme.palette.primary.main,
+              color: theme.palette.primary.contrastText,
+              fontWeight: "bold",
             }}
-            onClick={option.onClick}
           >
-            {option.icon}
-            <Typography variant="body1" sx={{ marginLeft: theme.spacing(1) }}>
-              {option.label}
+            {shortName}
+          </Box>
+          <Box>
+            <Typography variant="h6">
+              {user?.firstName} {user?.lastName}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {user?.email}
             </Typography>
           </Box>
-        ))}
+        </Box>
+        <Box sx={{ marginTop: theme.spacing(3) }}>
+          {options.map((option) => (
+            <Box
+              key={option.id}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                padding: theme.spacing(2),
+                borderBottom: `1px solid ${theme.palette.divider}`,
+                cursor: "pointer",
+                "&:last-child": {
+                  borderBottom: "none",
+                },
+              }}
+              onClick={option.onClick}
+            >
+              {option.icon}
+              <Typography variant="body1" sx={{ marginLeft: theme.spacing(1) }}>
+                {option.label}
+              </Typography>
+            </Box>
+          ))}
+        </Box>
       </Box>
-    </Box>
+      {openPopup && (
+        <EditProfile open={openPopup} handleClose={() => setOpenPopup(false)} />
+      )}
+    </>
   );
 };

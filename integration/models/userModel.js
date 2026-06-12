@@ -8,6 +8,7 @@ export const createUserService = async (
   password,
   role,
   phone,
+  gender,
 ) => {
   const hashedPassword = await bcrypt.hash(password, 10);
   const userCheck = await pool.query("SELECT * from users WHERE email = $1", [
@@ -17,8 +18,16 @@ export const createUserService = async (
     throw new Error("Email already in use");
   }
   const query =
-    'INSERT INTO users ("firstName", "lastName", "email", "password", "role", "phone") VALUES ($1, $2, $3, $4, $5, $6) RETURNING id';
-  const values = [firstName, lastName, email, hashedPassword, role, phone];
+    'INSERT INTO users ("firstName", "lastName", "email", "password", "role", "phone", "gender", "age") VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id';
+  const values = [
+    firstName,
+    lastName,
+    email,
+    hashedPassword,
+    role,
+    phone,
+    gender,
+  ];
   const result = await pool.query(query, values);
   return result.rows[0].id;
 };
@@ -43,12 +52,13 @@ export const refreshTokenService = async (refreshToken) => {
     .createHash("sha256")
     .update(refreshToken)
     .digest("hex");
-  const query =
-    "SELECT * FROM users_refresh_tokens WHERE token_hash = $1 AND is_revoked = FALSE AND expires_at > NOW()";
+  const query = `SELECT u.role, u.email, u."firstName", u."lastName", t.* FROM users_refresh_tokens t INNER JOIN users u ON t.user_id = u.id WHERE t.token_hash = $1 AND t.is_revoked = FALSE AND t.expires_at > NOW()`;
   const values = [hashedToken];
   const result = await pool.query(query, values);
-  const tokenRecord = result.rows[0];
-  return tokenRecord;
+  if (!result) {
+    throw new Error("error in fetching refresh token");
+  }
+  return result.rows[0];
 };
 
 export const saveTokenUserService = async (user, hashToken) => {
@@ -85,4 +95,42 @@ export const tokenLogoutService = async (refreshToken, userId) => {
     throw new Error("invalid refresh token or user Id");
   }
   return result.rows;
+};
+
+export const getPatientDataService = async (userId) => {
+  const query =
+    'SELECT id, "firstName", "lastName", phone, email, role, gender, age FROM users WHERE id = $1 AND role = $2';
+  const values = [userId, "PATIENT"];
+  const result = await pool.query(query, values);
+  if (!result) {
+    throw new Error("User doesn't exist");
+  }
+  return result.rows[0];
+};
+
+export const updatePatientProfileDetails = async (userId, updateFields) => {
+  const keys = Object.keys(updateFields).filter(
+    (key) => updateFields[key] !== undefined && updateFields[key] !== "",
+  );
+  if (keys.length === 0) {
+    throw new Error("No fields provided for update");
+  }
+  //Build the "column = $X" assignments dynamically
+  //Note: Parameter index needs to account for the userId parameter
+  const setAssignments = keys.map((key, index) => `"${key}" = $${index + 2}`);
+  const query = `
+    UPDATE users 
+    SET ${setAssignments.join(", ")} 
+    WHERE id = $1 
+    RETURNING id, "firstName", "lastName", "email", phone, gender, age;
+  `;
+  // 4. Map the matching values to pass into the query
+  const values = [userId, ...keys.map((key) => updateFields[key])];
+  // 5. Execute using the connection pool
+  const result = await pool.query(query, values);
+  console.log(result, "res");
+  if (!result) {
+    throw new Error("User update not done");
+  }
+  return result.rows[0];
 };

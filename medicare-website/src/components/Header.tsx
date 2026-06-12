@@ -1,6 +1,10 @@
 import logo from "../assets/medicare_icon.png";
-import { Box, FormControl, Grid, InputLabel, MenuItem } from "@mui/material";
-import { Select } from "@mui/material";
+import Box from "@mui/material/Box";
+import FormControl from "@mui/material/FormControl";
+import Grid from "@mui/material/Grid";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import Select from "@mui/material/Select";
 import { AutocompleteSearchBar } from "./auto-complete/AutoComplete";
 import PermIdentityIcon from "@mui/icons-material/PermIdentity";
 import AccountCircleRoundedIcon from "@mui/icons-material/AccountCircleRounded";

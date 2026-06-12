@@ -1,5 +1,7 @@
 import { useState } from "react";
-import { Box, Divider, Typography } from "@mui/material";
+import Box from "@mui/material/Box";
+import Divider from "@mui/material/Divider";
+import Typography from "@mui/material/Typography";
 import { useMutation } from "@tanstack/react-query";
 import { TextField } from "../text-field/TextField";
 import { Button } from "../button/Button";
