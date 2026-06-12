@@ -126,8 +126,6 @@ const EditProfilDialogBox = ({
 }) => {
   const [error, setError] = useState<string>("");
   const [formData, setFormData] = useState(data);
-  console.log(data, "data");
-  console.log(formData, "form");
 
   return (
     <Dialog
