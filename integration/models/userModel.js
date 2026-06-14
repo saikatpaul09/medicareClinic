@@ -1,15 +1,17 @@
 import pool from "../config/db.js";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
-export const createUserService = async (
-  firstName,
-  lastName,
-  email,
-  password,
-  role,
-  phone,
-  gender,
-) => {
+export const createUserService = async (payload, filteredValues) => {
+  const { email, password } = payload;
+  const keys = Object.keys(filteredValues).filter(
+    (key) => filteredValues[key] !== undefined && filteredValues[key] !== "",
+  );
+  if (keys.length === 0) {
+    throw new Error(
+      "One or more fields provided is null or invalid for update",
+    );
+  }
+  const setAssignments = keys.map((_, index) => `$${index + 1}`);
   const hashedPassword = await bcrypt.hash(password, 10);
   const userCheck = await pool.query("SELECT * from users WHERE email = $1", [
     email,
@@ -17,16 +19,12 @@ export const createUserService = async (
   if (userCheck.rows.length > 0) {
     throw new Error("Email already in use");
   }
-  const query =
-    'INSERT INTO users ("firstName", "lastName", "email", "password", "role", "phone", "gender", "age") VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id';
+  const dynamicKeys = keys.map((key) => `"${key}"`).join(", ");
+  const query = `INSERT INTO users (${dynamicKeys}) VALUES (${setAssignments.join(", ")}) RETURNING id`;
   const values = [
-    firstName,
-    lastName,
-    email,
-    hashedPassword,
-    role,
-    phone,
-    gender,
+    ...keys.map((key) =>
+      key === "password" ? hashedPassword : filteredValues[key],
+    ),
   ];
   const result = await pool.query(query, values);
   return result.rows[0].id;
@@ -113,7 +111,9 @@ export const updatePatientProfileDetails = async (userId, updateFields) => {
     (key) => updateFields[key] !== undefined && updateFields[key] !== "",
   );
   if (keys.length === 0) {
-    throw new Error("No fields provided for update");
+    throw new Error(
+      "One or more fields provided is null or invalid for update",
+    );
   }
   //Build the "column = $X" assignments dynamically
   //Note: Parameter index needs to account for the userId parameter

@@ -20,18 +20,39 @@ const handleResponse = (res, status, message, data) => {
 };
 
 export const registerUserController = asyncHandler(async (req, res) => {
-  const { firstName, lastName, email, password, role, phone, gender } =
-    req.body;
+  const payload = req.body;
+  const REQUIRED_FIELDS = [
+    "firstName",
+    "lastName",
+    "email",
+    "phone",
+    "password",
+  ];
+  const ALLOWED_FIELDS = [
+    "firstName",
+    "lastName",
+    "age",
+    "gender",
+    "email",
+    "phone",
+    "role",
+    "gender",
+    "password",
+  ];
+  const hasAllKeys = REQUIRED_FIELDS.every((key) =>
+    Object.hasOwn(payload, key),
+  );
+  if (!hasAllKeys) {
+    handleResponse(res, 400, "Missing Fields");
+  }
+  const filteredUpdates = {};
+  Object.keys(payload).forEach((key) => {
+    if (ALLOWED_FIELDS.includes(key)) {
+      filteredUpdates[key] = req.body[key];
+    }
+  });
   try {
-    const user = await createUserService(
-      firstName,
-      lastName,
-      email,
-      password,
-      role,
-      phone,
-      gender,
-    );
+    const user = await createUserService(payload, filteredUpdates);
     handleResponse(res, 201, "User registered successfully", {
       userId: user.id,
     });
@@ -168,14 +189,14 @@ export const updatePatientDetailsController = asyncHandler(async (req, res) => {
     "email",
     "phone",
   ];
-  const filteredUpdates = {};
+  const filteredValues = {};
   Object.keys(updates).forEach((key) => {
     if (ALLOWED_UPDATES.includes(key)) {
-      filteredUpdates[key] = req.body[key];
+      filteredValues[key] = req.body[key];
     }
   });
   try {
-    const result = await updatePatientProfileDetails(userId, filteredUpdates);
+    const result = await updatePatientProfileDetails(userId, filteredValues);
     if (!result) {
       handleResponse(res, 400, "User update not done");
     }
