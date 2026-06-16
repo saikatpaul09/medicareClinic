@@ -18,7 +18,9 @@ export const Login = () => {
     password: "",
   });
   const [error, setError] = useState("");
-  const { setUserInfo, closePopup } = useAuthStore((state) => state.login);
+  const { setUserInfo, setRole, closePopup } = useAuthStore(
+    (state) => state.login,
+  );
   const { mutate: loginUser, isPending } = useMutation({
     mutationKey: ["login"],
     mutationFn: async () => {
@@ -30,6 +32,7 @@ export const Login = () => {
     },
     onSuccess: (data) => {
       alert("Login successful! Welcome back.");
+      setRole(data.data.user.role);
       setUserInfo(data.data);
       closePopup();
     },

@@ -19,7 +19,7 @@ export const Header = () => {
   const sideBarRole = useAuthStore((state) => state.login.sideBarRole);
   const openPopup = useAuthStore((state) => state.login.openPopup);
   const userInfo = useAuthStore((state) => state.login.userInfo);
-
+  const role = useAuthStore((state) => state.login.role);
   return (
     <header style={{ borderBottom: `1px solid ${theme.palette.divider}` }}>
       <Box
@@ -76,7 +76,7 @@ export const Header = () => {
               color="primary"
               onClick={() =>
                 openPopup(
-                  userInfo
+                  userInfo && role === "PATIENT"
                     ? (roles.PROFILE as SideBarRole)
                     : (roles.LOGIN as SideBarRole),
                 )
@@ -91,7 +91,7 @@ export const Header = () => {
                 width: "120px",
               }}
             >
-              {userInfo ? (
+              {userInfo && role === "PATIENT" ? (
                 <>
                   <AccountCircleRoundedIcon
                     sx={{ width: "40px", height: "40px" }}
