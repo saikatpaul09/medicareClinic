@@ -15,7 +15,7 @@ export const SideBar = ({ role }: { role: Role }) => {
         position: "fixed",
         right: 0,
         top: 0,
-        height: "100vh",
+        height: "100%",
         width: 400,
         bgcolor: `${theme.palette.background.paper}`,
         borderRight: "1px solid",

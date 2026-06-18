@@ -11,16 +11,13 @@ import { apiClientWithAuth } from "../../api/client";
 import { LOGOUT_USER } from "../../api/mutations";
 import useAuthStore from "../../store";
 import { EditProfile } from "./EditProfile";
-
+import { shortNameHelper } from "../../utils/helpers";
 export const MyAccount = () => {
   const { userInfo, clearUserInfo } = useAuthStore((state) => state.login);
   const [openPopup, setOpenPopup] = useState(false);
   const closePopup = useAuthStore((state) => state.login.closePopup);
   const user = userInfo?.user;
-  const shortName = `${user?.firstName} ${user?.lastName}`
-    ?.split(" ")
-    .map((name: string) => name[0])
-    .join("");
+  const name = shortNameHelper(user?.firstName, user?.lastName);
   const { mutate: logout } = useMutation({
     mutationKey: ["logout"],
     mutationFn: async () => {
@@ -98,7 +95,7 @@ export const MyAccount = () => {
               fontWeight: "bold",
             }}
           >
-            {shortName}
+            {name}
           </Box>
           <Box>
             <Typography variant="h6">

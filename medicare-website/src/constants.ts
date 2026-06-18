@@ -11,7 +11,7 @@ import AirlineSeatFlatIcon from "@mui/icons-material/AirlineSeatFlat";
 import VaccinesIcon from "@mui/icons-material/Vaccines";
 import LocalPharmacyIcon from "@mui/icons-material/LocalPharmacy";
 import BloodtypeIcon from "@mui/icons-material/Bloodtype";
-import { ForgotPassword, Login, SignUp, MyAccount } from "./components/index";
+import { ForgotPassword, Login, SignUp, MyAccount } from "./components";
 
 export const carouselItems = [
   { src: carousel3, alt: "Carousel Image 3" },

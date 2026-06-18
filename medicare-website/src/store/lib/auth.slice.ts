@@ -46,7 +46,6 @@ const createLoginSlice: StateCreator<ILoginSlice> = (set) => ({
       }));
     },
     setUserInfo: (payload) => {
-      console.log(payload, "inside");
       set((state) => ({
         login: {
           ...state.login,

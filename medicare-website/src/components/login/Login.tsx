@@ -12,7 +12,11 @@ import { type SideBarRole } from "../../types";
 import { apiClientWithAuth } from "../../api/client";
 import { LOGIN_USER } from "../../api/mutations";
 import { EMAIL_REGEX } from "../../constants";
+import { useNavigate, useLocation } from "react-router";
 export const Login = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || "/dashboard/admin";
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -32,7 +36,11 @@ export const Login = () => {
     },
     onSuccess: (data) => {
       alert("Login successful! Welcome back.");
-      setRole(data.data.user.role);
+      const role = data.data.user.role;
+      if (role === "ADMIN") {
+        navigate(from, { replace: true });
+      }
+      setRole(role);
       setUserInfo(data.data);
       closePopup();
     },

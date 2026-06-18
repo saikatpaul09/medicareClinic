@@ -12,3 +12,5 @@ export { TextField } from "./text-field/TextField";
 export { MyAccount } from "./my-account/MyAccount";
 export { AuthProvider } from "./AuthProvider";
 export { Loader } from "./Loader";
+export { ProtectedRoute } from "./ProtectedRoute";
+export { AdminSideBar } from "./admin/AdminSideBar";
