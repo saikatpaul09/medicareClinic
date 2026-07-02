@@ -42,7 +42,6 @@ export const AdminSideBar = () => {
         left: 0,
         height: "100vh",
         minWidth: "250px",
-        borderRight: "1px solid #e2e8f0",
         top: "0",
         zIndex: 10,
         marginTop: "10px",
@@ -99,8 +98,8 @@ export const AdminSideBar = () => {
           bottom: 30,
           width: "230px",
           "&:hover": {
-            color: "black",
-            background: "#f0fdfa", // Custom background color on hover
+            color: theme.palette.secondary.main,
+            background: theme.palette.secondary.light, // Custom background color on hover
           },
         }}
       >

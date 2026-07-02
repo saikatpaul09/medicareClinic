@@ -20,18 +20,24 @@ export const carouselItems = [
 ];
 
 export const specialties = [
-  { name: "Cardiology", icon: FavoriteBorderOutlinedIcon },
-  { name: "Dermatology", icon: Face3OutlinedIcon },
-  { name: "Obstetrics", icon: GirlIcon },
-  { name: "Pediatrics", icon: ChildFriendlyIcon },
-  { name: "Psychiatry", icon: PsychologyIcon },
-  { name: "Radiology", icon: LocalHospitalIcon },
-  { name: "Surgery", icon: AirlineSeatFlatIcon },
-  { name: "Urology", icon: AirlineSeatFlatIcon },
-  { name: "Neurology", icon: VaccinesIcon },
-  { name: "Orthopedics", icon: LocalPharmacyIcon },
-  { name: "General Practice", icon: BloodtypeIcon },
+  { name: "Cardiology", value: "CARDIOLOGY", icon: FavoriteBorderOutlinedIcon },
+  { name: "Dermatology", value: "DERMATOLOGY", icon: Face3OutlinedIcon },
+  { name: "Obstetrics", value: "OBSTETRICS", icon: GirlIcon },
+  { name: "Pediatrics", value: "PEDIATRICS", icon: ChildFriendlyIcon },
+  { name: "Psychiatry", value: "PSYCHIATRY", icon: PsychologyIcon },
+  { name: "Radiology", value: "RADIOLOGY", icon: LocalHospitalIcon },
+  { name: "Surgery", value: "SURGERY", icon: AirlineSeatFlatIcon },
+  { name: "Urology", value: "UROLOGY", icon: AirlineSeatFlatIcon },
+  { name: "Neurology", value: "NEUROLOGY", icon: VaccinesIcon },
+  { name: "Orthopedics", value: "ORTHOPEDICS", icon: LocalPharmacyIcon },
+  { name: "General Practice", value: "GENERAL_PRACTICE", icon: BloodtypeIcon },
 ];
+export const specialtiesList = specialties.map((specialty) => {
+  return {
+    label: specialty.name,
+    value: specialty.value,
+  };
+});
 
 export const roles = {
   LOGIN: "LOGIN",

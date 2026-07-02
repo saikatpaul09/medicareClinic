@@ -128,7 +128,6 @@ export const updatePatientProfileDetails = async (userId, updateFields) => {
   const values = [userId, ...keys.map((key) => updateFields[key])];
   // 5. Execute using the connection pool
   const result = await pool.query(query, values);
-  console.log(result, "res");
   if (!result) {
     throw new Error("User update not done");
   }

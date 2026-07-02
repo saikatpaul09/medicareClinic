@@ -11,7 +11,7 @@ import {
   fetchPatientDetailsController,
   updatePatientDetailsController,
 } from "../controllers/userController.js";
-
+import { fetchAllDoctorsController } from "../controllers/adminController.js";
 const router = express.Router();
 
 router.post("/register", registerUserController);
@@ -35,6 +35,13 @@ router.post(
   authenticateJWT,
   authorizeRoles("PATIENT", "ADMIN"),
   updatePatientDetailsController,
+);
+
+router.post(
+  "/doctors",
+  authenticateJWT,
+  authorizeRoles("ADMIN"),
+  fetchAllDoctorsController,
 );
 
 export default router;

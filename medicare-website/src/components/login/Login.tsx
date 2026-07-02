@@ -16,7 +16,7 @@ import { useNavigate, useLocation } from "react-router";
 export const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state?.from?.pathname || "/dashboard/admin";
+  const from = location.state?.from?.pathname || "/dashboard";
   const [formData, setFormData] = useState({
     email: "",
     password: "",

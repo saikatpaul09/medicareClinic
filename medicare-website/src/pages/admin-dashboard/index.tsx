@@ -34,11 +34,13 @@ const dashboardBody: React.CSSProperties = {
   height: "100%",
   width: "calc(100% - 275px)",
   overflowY: "auto",
-  background: "#f1f5f9",
+  background: theme.palette.secondary.light,
 };
 
 const bodyContainer: React.CSSProperties = {
   padding: `${theme.spacing(3)}`,
+  width: "100%",
+  overflowY: "auto",
 };
 
 export const AdminDashBoardLayout = () => {

@@ -10,14 +10,7 @@ import {
   updatePatientProfileDetails,
 } from "../models/userModel.js";
 import { generateToken, generateRefreshToken } from "../utils/generateToken.js";
-
-const handleResponse = (res, status, message, data) => {
-  res.status(status).json({
-    status,
-    message,
-    data,
-  });
-};
+import { handleResponse } from "../utils/helpers.js";
 
 export const registerUserController = asyncHandler(async (req, res) => {
   const payload = req.body;
@@ -44,6 +37,7 @@ export const registerUserController = asyncHandler(async (req, res) => {
   );
   if (!hasAllKeys) {
     handleResponse(res, 400, "Missing Fields");
+    return;
   }
   const filteredUpdates = {};
   Object.keys(payload).forEach((key) => {

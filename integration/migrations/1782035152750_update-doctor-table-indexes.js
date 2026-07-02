@@ -9,20 +9,6 @@ export const shorthands = undefined;
  * @returns {Promise<void> | void}
  */
 export const up = (pgm) => {
-  pgm.createType("appointment_status", [
-    "Scheduled",
-    "Confirmed",
-    "In_Progress",
-    "Completed",
-    "Cancelled",
-  ]);
-  pgm.createType("payment_status", [
-    "Booked",
-    "Payment_Not_Confirmed",
-    "In_Progress",
-    "Refund",
-    "Pending",
-  ]);
   pgm.createTable("hospitals", {
     id: {
       type: "uuid",
@@ -54,6 +40,7 @@ export const up = (pgm) => {
       onDelete: "CASCADE",
       unique: true,
     },
+    status: { type: "doctor_status", notNull: true, default: "INACTIVE" },
     specialization: { type: "varchar(100)", notNull: true },
     consultation_fee: { type: "decimal(10,2)", notNull: true, default: 0.0 },
     license_number: { type: "varchar(50)", notNull: true, unique: true },
@@ -136,13 +123,50 @@ export const up = (pgm) => {
   });
 
   // 8. Performance and Conflict Prevention Indexes
+
   pgm.createIndex("schedules", ["doctor_id", "day_of_week"], {
     name: "schedule_doctor_index",
   });
-  pgm.createIndex("users", ["phone", "email"], {
-    name: "users_phone_email_index",
+
+  //users index
+
+  pgm.createExtension("pg_trgm", { ifNotExists: true });
+  pgm.createIndex(
+    "users",
+    [
+      { name: "email", opclass: "gin_trgm_ops" }, // Must be grouped with the column name
+    ],
+    {
+      name: "users_email_trgm_idx",
+      method: "gin",
+    },
+  );
+
+  pgm.createIndex(
+    "users",
+    [
+      { name: "firstName", opclass: "gin_trgm_ops" }, // Must be grouped with the column name
+    ],
+    {
+      name: "users_firstName_trgm_idx",
+      method: "gin",
+    },
+  );
+  pgm.createIndex(
+    "users",
+    [
+      { name: "lastName", opclass: "gin_trgm_ops" }, // Must be grouped with the column name
+    ],
+    {
+      name: "users_lastName_trgm_idx",
+      method: "gin",
+    },
+  );
+  //doctors index
+  pgm.createIndex("doctors", ["user_id"], {
+    name: "doctorinfo_user_id_associated_index",
   });
-  pgm.createIndex("doctors", ["specialization", "hospital_id"], {
+  pgm.createIndex("doctors", ["status", "specialization", "hospital_id"], {
     name: "doctor_speciality_hospital_associated_index",
   });
   // Prevents double booking
@@ -166,12 +190,20 @@ export const down = (pgm) => {
   pgm.dropTable("appointments");
   pgm.dropTable("schedules");
   pgm.dropTable("hospitals");
+  pgm.dropExtension("pg_trgm");
   pgm.dropIndex("schedules", ["doctor_id", "day_of_week"], {
     name: "schedule_doctor_index",
   });
-  pgm.dropIndex("users", ["phone", "email"], {
-    name: "users_phone_email_index",
+  pgm.dropIndex("users", [], {
+    name: "users_email_trgm_idx",
   });
+  pgm.dropIndex("users", [], {
+    name: "users_firstname_trgm_idx",
+  });
+  pgm.dropIndex("users", [], {
+    name: "users_lastname_trgm_idx",
+  });
+
   pgm.dropIndex("doctors", ["specialization", "hospital_id"], {
     name: "doctor_speciality_hospital_associated_index",
   });

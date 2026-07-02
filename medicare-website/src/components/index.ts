@@ -14,3 +14,4 @@ export { AuthProvider } from "./AuthProvider";
 export { Loader } from "./Loader";
 export { ProtectedRoute } from "./ProtectedRoute";
 export { AdminSideBar } from "./admin/AdminSideBar";
+export { DataTable } from "./Table";
