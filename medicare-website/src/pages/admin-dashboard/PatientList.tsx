@@ -1,21 +1,20 @@
 import {
   useQuery,
   keepPreviousData,
-  useQueryClient,
   useMutation,
+  useQueryClient,
 } from "@tanstack/react-query";
 import { apiClientWithAuth } from "../../api/client";
-import { GET_ADMIN_ALL_DOCTORS_LIST } from "../../api/query";
+import { GET_ALL_ADMIN_PATIENTS } from "../../api/query";
 import useAuthStore from "../../store";
 import { Button, DataTable } from "../../components";
 import type { GridColDef, GridPaginationModel } from "@mui/x-data-grid";
-import { doctorListMapper } from "./helpers";
+import { patientListMapper } from "./helpers";
 import { useState } from "react";
 import Box from "@mui/material/Box";
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
 import theme from "../../theme";
-import { getHospitalOptions, specialtiesList } from "../../constants";
 import InputAdornment from "@mui/material/InputAdornment";
 import CloseOutlinedIcon from "@mui/icons-material/CloseOutlined";
 import AddIcon from "@mui/icons-material/Add";
@@ -25,10 +24,9 @@ import ClearIcon from "@mui/icons-material/Clear";
 import BorderColorOutlinedIcon from "@mui/icons-material/BorderColorOutlined";
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
 import { EditOrAddDoctorForm } from "./EditAndAddDoctorForm";
-import { useAllHospitalData } from "../../hooks/useAllHospitalData";
-import { DELETE_ADMIN_DOCTOR_PROFILE } from "../../api/mutations";
+import { DELETE_ADMIN_PATIENT_PROFILE } from "../../api/mutations";
 
-export const DoctorsList = () => {
+export const PatientList = () => {
   const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
     page: 0,
     pageSize: 7,
@@ -40,12 +38,8 @@ export const DoctorsList = () => {
   const [filters, setFilters] = useState({
     name: "",
     email: "",
-    license_number: "",
-    specialization: {
-      label: "",
-      value: "",
-    },
-    status: {
+    phone_number: "",
+    gender: {
       label: "",
       value: "",
     },
@@ -54,22 +48,18 @@ export const DoctorsList = () => {
     firstName: "",
     lastName: "",
     email: "",
-    license_number: "",
-    specialization: "",
-    status: "",
+    phone_number: "",
+    gender: "",
   });
   const [pageCursorMap, setPageCursorMap] = useState<
     Record<number, string | null>
   >({
     0: null,
   });
-  const { data: hospitalList } = useAllHospitalData();
-  const hospitalOptions = getHospitalOptions({
-    hospitals: hospitalList?.data?.hospitals,
-  });
+
   const getAllDoctorsList = async () => {
     try {
-      const result = await apiClientWithAuth.post(GET_ADMIN_ALL_DOCTORS_LIST, {
+      const result = await apiClientWithAuth.post(GET_ALL_ADMIN_PATIENTS, {
         limit: paginationModel.pageSize,
         nextCursor: pageCursorMap[paginationModel.page] || null,
         filters: { ...filtersApply },
@@ -90,7 +80,7 @@ export const DoctorsList = () => {
   const userId = userInfo.user.id;
   const { data, isLoading } = useQuery({
     queryKey: [
-      "doctorsList",
+      "patientList",
       userId,
       pageCursorMap[paginationModel.page],
       paginationModel.page,
@@ -123,9 +113,8 @@ export const DoctorsList = () => {
       firstName: filters.name.split(" ")[0] || "",
       lastName: filters.name.split(" ")[1] || "",
       email: filters.email,
-      license_number: filters.license_number,
-      specialization: filters.specialization.value,
-      status: filters.status.value,
+      phone_number: filters.phone_number,
+      gender: filters.gender.value,
     });
   };
   const clearFilters = () => {
@@ -133,12 +122,8 @@ export const DoctorsList = () => {
     setFilters({
       name: "",
       email: "",
-      license_number: "",
-      specialization: {
-        label: "",
-        value: "",
-      },
-      status: {
+      phone_number: "",
+      gender: {
         label: "",
         value: "",
       },
@@ -147,25 +132,24 @@ export const DoctorsList = () => {
       firstName: "",
       lastName: "",
       email: "",
-      license_number: "",
-      specialization: "",
-      status: "",
+      phone_number: "",
+      gender: "",
     });
   };
   const queryClient = useQueryClient();
-  const { mutate: deleteDoctorHandler } = useMutation({
-    mutationKey: ["deleteAdminDocRecord"],
+  const { mutate: deletePatientHandler } = useMutation({
+    mutationKey: ["deleteAdminPatientRecord"],
     mutationFn: async (id) => {
       const response = await apiClientWithAuth.delete(
-        DELETE_ADMIN_DOCTOR_PROFILE,
+        DELETE_ADMIN_PATIENT_PROFILE,
         { data: { userId: id } },
       );
       return response.data;
     },
     onSuccess: () => {
-      alert(`Doctor record deleted successfully`);
+      alert(`Patient record deleted successfully`);
       queryClient.invalidateQueries({
-        queryKey: ["doctorsList"],
+        queryKey: ["patientList"],
         exact: false,
       });
     },
@@ -177,35 +161,30 @@ export const DoctorsList = () => {
     {
       field: "name",
       headerName: "Name",
-      width: 150,
-    },
-    {
-      field: "hospitalName",
-      headerName: "Hospital",
-      width: 180,
+      width: 220,
     },
     {
       field: "email",
       headerName: "Email",
       type: "string",
-      width: 180,
+      width: 220,
       cellClassName: "wrap-text",
     },
     {
       field: "phone",
       headerName: "Phone",
       type: "string",
-      width: 99,
+      width: 150,
     },
     {
-      field: "specialization",
-      headerName: "Specialization",
+      field: "gender",
+      headerName: "Gender",
       type: "string",
-      width: 110,
+      width: 80,
     },
     {
-      field: "license_number",
-      headerName: "License",
+      field: "age",
+      headerName: "Age",
       type: "string",
       width: 80,
     },
@@ -213,7 +192,7 @@ export const DoctorsList = () => {
       field: "createdAt",
       headerName: "Created At",
       type: "string",
-      width: 100,
+      width: 130,
       valueFormatter: (value) => {
         if (!value) return "";
         return new Intl.DateTimeFormat("en-IN", {
@@ -227,7 +206,7 @@ export const DoctorsList = () => {
       field: "updatedAt",
       headerName: "Updated At",
       type: "string",
-      width: 100,
+      width: 130,
       valueFormatter: (value) => {
         if (!value) return "";
         return new Intl.DateTimeFormat("en-IN", {
@@ -238,16 +217,10 @@ export const DoctorsList = () => {
       },
     },
     {
-      field: "status",
-      headerName: "Status",
-      type: "string",
-      width: 90,
-    },
-    {
       field: "actions",
       headerName: "Actions",
       type: "string",
-      width: 90,
+      width: 150,
       renderCell: (params) => {
         return (
           <Box
@@ -265,7 +238,7 @@ export const DoctorsList = () => {
             >
               <BorderColorOutlinedIcon sx={{ fontSize: "18px" }} />
             </IconButton>
-            <IconButton onClick={() => deleteDoctorHandler(params.row.id)}>
+            <IconButton onClick={() => deletePatientHandler(params.row.id)}>
               <DeleteOutlineOutlinedIcon
                 sx={{ color: theme.palette.error.main, fontSize: "18px" }}
               />
@@ -275,11 +248,9 @@ export const DoctorsList = () => {
       },
     },
   ];
-
   const rows = data
-    ? doctorListMapper({
-        data: data.data.doctors,
-        hospitalOptions: hospitalOptions,
+    ? patientListMapper({
+        data: data.data.patients,
       })
     : [];
   const handlePaginationModelChange = (newModel: GridPaginationModel) => {
@@ -361,24 +332,24 @@ export const DoctorsList = () => {
           }}
         />
         <TextField
-          label="Search by license number"
+          label="Search by Phone No"
           variant="outlined"
           color="secondary"
-          value={filters.license_number}
+          value={filters.phone_number}
           onChange={(e) =>
-            setFilters({ ...filters, license_number: e.target.value })
+            setFilters({ ...filters, phone_number: e.target.value })
           }
           slotProps={{
             input: {
-              endAdornment: filters.license_number && (
+              endAdornment: filters.phone_number && (
                 <InputAdornment position="end">
                   <IconButton
                     onClick={() => {
                       resetAfterFilterClear();
-                      setFilters({ ...filters, license_number: "" });
+                      setFilters({ ...filters, phone_number: "" });
                       setFiltersApply({
                         ...filtersApply,
-                        license_number: "",
+                        phone_number: "",
                       });
                     }}
                     edge="end"
@@ -390,68 +361,38 @@ export const DoctorsList = () => {
             },
           }}
         />
+
         <Autocomplete
           sx={{ width: 200 }}
           color="secondary"
-          options={specialtiesList}
-          value={filters.specialization}
+          value={filters.gender}
           onChange={(_, value) => {
             if (!value) {
               resetAfterFilterClear();
               setFilters({
                 ...filters,
-                specialization: {
+                gender: {
                   label: "",
                   value: "",
                 },
               });
               setFiltersApply({
                 ...filtersApply,
-                specialization: "",
+                gender: "",
               });
             }
-            setFilters({ ...filters, specialization: value });
-          }}
-          renderInput={(params) => (
-            <TextField
-              color="secondary"
-              {...params}
-              label="Specialization"
-              variant="outlined"
-            />
-          )}
-        />
-        <Autocomplete
-          sx={{ width: 200 }}
-          color="secondary"
-          value={filters.status}
-          onChange={(_, value) => {
-            if (!value) {
-              resetAfterFilterClear();
-              setFilters({
-                ...filters,
-                status: {
-                  label: "",
-                  value: "",
-                },
-              });
-              setFiltersApply({
-                ...filtersApply,
-                status: "",
-              });
-            }
-            setFilters({ ...filters, status: value });
+            setFilters({ ...filters, gender: value });
           }}
           options={[
-            { label: "Active", value: "ACTIVE" },
-            { label: "Inactive", value: "INACTIVE" },
-            { label: "On Leave", value: "ON_LEAVE" },
+            { label: "Male", value: "MALE" },
+            { label: "Female", value: "FEMALE" },
+            { label: "Others", value: "OTHERS" },
           ]}
           renderInput={(params) => (
             <TextField
               color="secondary"
               {...params}
-              label="Status"
+              label="Gender"
               variant="outlined"
             />
           )}
@@ -488,7 +429,7 @@ export const DoctorsList = () => {
           startIcon={<AddIcon />}
           onClick={() => setMode("add")}
         >
-          Add Doctor
+          Add Patient
         </Button>
       </Box>
       <Box>
@@ -507,10 +448,9 @@ export const DoctorsList = () => {
       </Box>
       {mode && (
         <EditOrAddDoctorForm
-          profile="DOCTOR"
           open={!!mode}
+          profile="PATIENT"
           doctorData={doctorData}
-          hospitalOptions={hospitalOptions}
           mode={mode}
           handleClose={() => {
             setMode(null);

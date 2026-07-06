@@ -24,7 +24,7 @@ export const registerUserController = asyncHandler(async (req, res) => {
   const ALLOWED_FIELDS = [
     "firstName",
     "lastName",
-    "age",
+    "date_of_birth",
     "gender",
     "email",
     "phone",
@@ -163,7 +163,7 @@ export const fetchPatientDetailsController = asyncHandler(async (req, res) => {
           role: result.role,
           gender: result.gender,
           phone: result.phone,
-          age: result.age,
+          date_of_birth: result.date_of_birth,
         },
       });
     }
@@ -178,7 +178,7 @@ export const updatePatientDetailsController = asyncHandler(async (req, res) => {
   const ALLOWED_UPDATES = [
     "firstName",
     "lastName",
-    "age",
+    "date_of_birth",
     "gender",
     "email",
     "phone",
@@ -203,7 +203,7 @@ export const updatePatientDetailsController = asyncHandler(async (req, res) => {
           role: result.role,
           gender: result.gender,
           phone: result.phone,
-          age: result.age,
+          date_of_birth: result.date_of_birth,
         },
       });
     }

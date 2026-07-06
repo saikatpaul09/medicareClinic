@@ -3,9 +3,11 @@ import { HomePage, AdminDashBoardLayout, DoctorsList } from "./pages/";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider, ProtectedRoute } from "./components";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router";
+import { PatientList } from "./pages/admin-dashboard/PatientList";
+
 const queryClient = new QueryClient();
 
-function App() {
+const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
@@ -30,6 +32,10 @@ function App() {
                   path="/dashboard/doctors-list"
                   element={<DoctorsList />}
                 />
+                <Route
+                  path="/dashboard/patient-list"
+                  element={<PatientList />}
+                />
               </Route>
             </Route>
             <Route path="*" element={<Navigate to="/unauthorized" replace />} />
@@ -38,6 +44,6 @@ function App() {
       </AuthProvider>
     </QueryClientProvider>
   );
-}
+};
 
 export default App;

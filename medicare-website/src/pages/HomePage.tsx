@@ -3,7 +3,6 @@ import { Carousel, SearchBySpeciality, Section } from "../components";
 import { carouselItems } from "../constants";
 import { specialties } from "../constants";
 import theme from "../theme";
-
 export const HomePage = () => {
   return (
     <>

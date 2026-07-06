@@ -5,6 +5,7 @@ import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import LocalPharmacyIcon from "@mui/icons-material/LocalPharmacy";
 import PersonalInjuryIcon from "@mui/icons-material/PersonalInjury";
 import PowerSettingsNewIcon from "@mui/icons-material/PowerSettingsNew";
+import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
 import { useLocation, useNavigate } from "react-router";
 import logo from "../../assets/medicare_icon.png";
 import theme from "../../theme";
@@ -29,6 +30,11 @@ const sidebarContent = [
     id: "All patients",
     icon: PersonalInjuryIcon,
     url: "/dashboard/patient-list",
+  },
+  {
+    id: "Affiliated Hospitals",
+    icon: LocalHospitalIcon,
+    url: "/dashboard/hospital-list",
   },
 ];
 export const AdminSideBar = () => {

@@ -1,10 +1,10 @@
 import logo from "../assets/medicare_icon.png";
 import Box from "@mui/material/Box";
-import FormControl from "@mui/material/FormControl";
+//import FormControl from "@mui/material/FormControl";
 import Grid from "@mui/material/Grid";
-import InputLabel from "@mui/material/InputLabel";
-import MenuItem from "@mui/material/MenuItem";
-import Select from "@mui/material/Select";
+// import InputLabel from "@mui/material/InputLabel";
+// import MenuItem from "@mui/material/MenuItem";
+// import Select from "@mui/material/Select";
 import { AutocompleteSearchBar } from "./auto-complete/AutoComplete";
 import PermIdentityIcon from "@mui/icons-material/PermIdentity";
 import AccountCircleRoundedIcon from "@mui/icons-material/AccountCircleRounded";
@@ -32,7 +32,7 @@ export const Header = () => {
             <img src={logo} width={90} height={90} alt="Medicare Logo" />
           </Grid>
           <Grid size={{ xs: 3, sm: 3 }} sx={{ marginTop: "20px" }}>
-            <FormControl
+            {/* <FormControl
               fullWidth
               variant="standard"
               sx={{ width: "80%", maxWidth: "220px" }}
@@ -49,7 +49,7 @@ export const Header = () => {
               >
                 <MenuItem value={10}>Ten</MenuItem>
               </Select>
-            </FormControl>
+            </FormControl> */}
           </Grid>
           <Grid size={{ md: 6, xs: 6, sm: 5 }}>
             <Box sx={{ width: "80%", marginTop: "20px" }}>
@@ -72,7 +72,7 @@ export const Header = () => {
           </Grid>
           <Grid size={{ xs: 2, sm: 2 }}>
             <Button
-              variant={userInfo ? "text" : "contained"}
+              variant={userInfo && role === "PATIENT" ? "text" : "contained"}
               color="primary"
               onClick={() =>
                 openPopup(

@@ -1,4 +1,5 @@
 import pool from "../config/db.js";
+import bcrypt from "bcrypt";
 
 const MAX_LIMIT = 100;
 export const getAllDoctorsListService = async ({
@@ -75,7 +76,7 @@ export const getAllDoctorsListService = async ({
     queryValues.push(decodedParse.createdAtLocal, decodedParse.id);
     // Secure row values comparison logic
     whereClauses.push(
-      `(u."createdAt", u.id) < ($${queryValues.length - 1}::timestamp, $${queryValues.length}::uuid)`,
+      `(u."createdAt", u.id) < ($${queryValues.length - 1}::timestamptz, $${queryValues.length}::uuid)`,
     );
   }
   // Construct WHERE clause
@@ -95,9 +96,9 @@ export const getAllDoctorsListService = async ({
       u."lastName", 
       u.phone,
       u.gender,
+      u.date_of_birth,
       u."createdAt",
       u."updatedAt",
-      ui.id AS userinfo_id,
       ui.hospital_id,
       ui.specialization,
       ui.consultation_fee,
@@ -119,7 +120,335 @@ export const getAllDoctorsListService = async ({
   const hasMore = rows.length > safeLimit;
   let newCursor = null;
   // Generate the next cursor using the last visible record on the page
-  if (hasMore) {
+  if (hasMore && rows.length > 0) {
+    rows.pop(); // Remove the extra item used to check for more data
+    const lastVisible = rows[rows.length - 1];
+    const { createdAt, id } = lastVisible;
+    const createdAtLocal = createdAt.toISOString();
+    const payload = JSON.stringify({ createdAtLocal, id });
+    newCursor = Buffer.from(payload).toString("base64");
+  }
+
+  return {
+    data: rows,
+    hasMore, // Boolean flag for frontend UI state management
+    nextCursor: newCursor,
+    totalCount: countResult.rows[0].total,
+  };
+};
+
+export const createDoctorService = async (doctorData) => {
+  const client = await pool.connect();
+  const {
+    email,
+    firstName,
+    lastName,
+    password,
+    phone,
+    gender,
+    date_of_birth,
+    hospital_id,
+    specialization,
+    consultation_fee,
+    license_number,
+    status,
+  } = doctorData;
+  try {
+    await client.query("BEGIN");
+    // Check if email already exists
+    const existingUser = await client.query(
+      `SELECT id FROM users WHERE email = $1`,
+      [email],
+    );
+
+    if (existingUser.rows.length > 0) {
+      throw new Error("Doctor with this email already exists");
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const userQuery = `
+      INSERT INTO users (
+        email,
+        "firstName",
+        "lastName",
+        password,
+        phone,
+        gender,
+        date_of_birth,
+        role
+      )
+      VALUES (
+        $1,$2,$3,$4,$5,$6,$7,$8
+      )
+      RETURNING id;
+    `;
+
+    const userResult = await client.query(userQuery, [
+      email,
+      firstName,
+      lastName,
+      hashedPassword,
+      phone,
+      gender,
+      date_of_birth,
+      "DOCTOR",
+    ]);
+
+    const userId = userResult.rows[0].id;
+
+    const doctorQuery = `
+      INSERT INTO doctors (
+        user_id,
+        hospital_id,
+        specialization,
+        consultation_fee,
+        license_number,
+        status
+      )
+      VALUES (
+        $1,$2,$3,$4,$5,$6
+      )
+      RETURNING *;
+    `;
+
+    const doctorResult = await client.query(doctorQuery, [
+      userId,
+      hospital_id,
+      specialization,
+      consultation_fee,
+      license_number,
+      status || "ACTIVE",
+    ]);
+
+    await client.query("COMMIT");
+
+    return {
+      doctorId: userId,
+      doctor: doctorResult.rows[0],
+    };
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
+};
+
+export const updateDoctorService = async (doctorData) => {
+  const client = await pool.connect();
+
+  try {
+    await client.query("BEGIN");
+    const {
+      userId,
+      email,
+      firstName,
+      lastName,
+      phone,
+      gender,
+      date_of_birth,
+      hospital_id,
+      specialization,
+      consultation_fee,
+      license_number,
+      status,
+    } = doctorData;
+
+    await client.query(
+      `
+      UPDATE users
+      SET
+        email = COALESCE($1, email),
+        "firstName" = COALESCE($2, "firstName"),
+        "lastName" = COALESCE($3, "lastName"),
+        phone = COALESCE($4, phone),
+        gender = COALESCE($5, gender),
+        date_of_birth = COALESCE($6, date_of_birth),
+        "updatedAt" = NOW()
+      WHERE id = $7
+      `,
+      [email, firstName, lastName, phone, gender, date_of_birth, userId],
+    );
+
+    const doctorProfile = await client.query(
+      `
+      SELECT id
+      FROM doctors
+      WHERE user_id = $1
+      `,
+      [userId],
+    );
+
+    if (doctorProfile.rowCount > 0) {
+      await client.query(
+        `
+        UPDATE doctors
+        SET
+          hospital_id = COALESCE($1, hospital_id),
+          specialization = COALESCE($2, specialization),
+          consultation_fee = COALESCE($3, consultation_fee),
+          license_number = COALESCE($4, license_number),
+          status = COALESCE($5, status),
+          updated_at = NOW()
+        WHERE user_id = $6
+        `,
+        [
+          hospital_id,
+          specialization,
+          consultation_fee,
+          license_number,
+          status,
+          userId,
+        ],
+      );
+    } else {
+      await client.query(
+        `
+        INSERT INTO doctors (
+          user_id,
+          hospital_id,
+          specialization,
+          consultation_fee,
+          license_number,
+          status
+        )
+        VALUES (
+          $1,$2,$3,$4,$5,$6
+        )
+        `,
+        [
+          userId,
+          hospital_id,
+          specialization,
+          consultation_fee,
+          license_number,
+          status || "ACTIVE",
+        ],
+      );
+    }
+
+    await client.query("COMMIT");
+
+    return {
+      success: true,
+      message: "Doctor updated successfully",
+    };
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
+};
+
+export const deleteDoctorService = async (userId) => {
+  const result = await pool.query(
+    `
+    DELETE FROM users
+    WHERE id = $1
+      AND role = 'DOCTOR'
+    RETURNING id;
+    `,
+    [userId],
+  );
+  if (result.rowCount === 0) {
+    throw new Error("Doctor not found");
+  }
+  return result.rows[0];
+};
+export const getAllPatientListService = async ({
+  filters = {},
+  limit = 10,
+  nextCursor,
+}) => {
+  const queryValues = ["PATIENT"];
+  const countValues = ["PATIENT"];
+  let whereClauses = ["u.role = $1"];
+  let countClauses = ["u.role = $1"];
+  const { firstName, lastName, email, gender, phone_number } = filters;
+  // 1. Enforce MAX_LIMIT Guard
+  let safeLimit = parseInt(limit, 10);
+  if (isNaN(safeLimit) || safeLimit <= 0) {
+    safeLimit = 10; // Default fallback
+  } else if (safeLimit > MAX_LIMIT) {
+    safeLimit = MAX_LIMIT; // Enforced upper bound
+  }
+  if (firstName) {
+    queryValues.push(`%${firstName}%`);
+    countValues.push(`%${firstName}%`);
+    countClauses.push(`u."firstName" ILIKE $${countValues.length}`);
+    whereClauses.push(`u."firstName" ILIKE $${queryValues.length}`); // Case-insensitive partial match
+  }
+  if (lastName) {
+    queryValues.push(lastName);
+    countValues.push(lastName);
+    countClauses.push(`u."lastName" = $${countValues.length}`);
+    whereClauses.push(`u."lastName" = $${queryValues.length}`);
+  }
+  if (email) {
+    queryValues.push(email);
+    countValues.push(email);
+    countClauses.push(`u.email = $${countValues.length}`);
+    whereClauses.push(`u.email = $${queryValues.length}`);
+  }
+  if (phone_number) {
+    queryValues.push(phone_number);
+    countValues.push(phone_number);
+    countClauses.push(`u.phone = $${countValues.length}`);
+    whereClauses.push(`u.phone = $${queryValues.length}`);
+  }
+  if (gender) {
+    queryValues.push(gender);
+    countValues.push(gender);
+    countClauses.push(`u.gender = $${countValues.length}`);
+    whereClauses.push(`u.gender = $${queryValues.length}`);
+  }
+  // 2. Keyset Pagination (Cursor Logic)
+  if (nextCursor) {
+    const decoded = Buffer.from(nextCursor, "base64").toString("utf8");
+    const decodedParse = JSON.parse(decoded);
+    queryValues.push(decodedParse.createdAtLocal, decodedParse.id);
+    // Secure row values comparison logic
+    whereClauses.push(
+      `(u."createdAt", u.id) < ($${queryValues.length - 1}::timestamptz, $${queryValues.length}::uuid)`,
+    );
+  }
+  // Construct WHERE clause
+  const whereSql =
+    whereClauses.length > 0 ? `WHERE ${whereClauses.join(" AND ")}` : "";
+  const countSql =
+    countClauses.length > 0 ? `WHERE ${countClauses.join(" AND ")}` : "";
+  // Append Limit (+1 to fetch next token window)
+  queryValues.push(safeLimit + 1);
+  const limitIndex = queryValues.length;
+
+  const query = `
+    SELECT 
+      u.id, 
+      u.email, 
+      u."firstName", 
+      u."lastName", 
+      u.phone,
+      u.gender,
+      u.date_of_birth,
+      u."createdAt",
+      u."updatedAt" FROM "users" u 
+     ${whereSql} ORDER BY u."createdAt" DESC, u.id DESC
+    LIMIT $${limitIndex};
+  `;
+  const countQuery = `
+    SELECT COUNT(*) AS total
+    FROM "users" u 
+     ${countSql}
+  `;
+
+  const result = await pool.query(query, queryValues);
+  const countResult = await pool.query(countQuery, countValues);
+  const { rows } = result;
+  const hasMore = rows.length > safeLimit;
+  let newCursor = null;
+  // Generate the next cursor using the last visible record on the page
+  if (hasMore && rows.length > 0) {
     rows.pop(); // Remove the extra item used to check for more data
     const lastVisible = rows[rows.length - 1];
     const { createdAt, id } = lastVisible;
@@ -134,4 +463,164 @@ export const getAllDoctorsListService = async ({
     nextCursor: newCursor,
     totalCount: countResult.rows[0].total,
   };
+};
+
+export const createAdminPatientService = async (patientData) => {
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    const {
+      email,
+      firstName,
+      lastName,
+      password,
+      phone,
+      gender,
+      date_of_birth,
+    } = patientData;
+
+    // Check if email already exists
+    const existingUser = await client.query(
+      `SELECT id FROM users WHERE email = $1`,
+      [email],
+    );
+    if (existingUser.rows.length > 0) {
+      throw new Error("Patient with this email already exists");
+    }
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const result = await client.query(
+      `
+      INSERT INTO users (
+        email,
+        "firstName",
+        "lastName",
+        password,
+        phone,
+        gender,
+        date_of_birth,
+        role,
+        "createdAt",
+        "updatedAt"
+      )
+      VALUES (
+        $1,$2,$3,$4,$5,$6,$7,$8,
+        NOW(),
+        NOW()
+      )
+      RETURNING
+        id,
+        email,
+        "firstName",
+        "lastName",
+        phone,
+        gender,
+        date_of_birth,
+        "createdAt",
+        "updatedAt";
+      `,
+      [
+        email,
+        firstName,
+        lastName,
+        hashedPassword,
+        phone,
+        gender,
+        date_of_birth,
+        "PATIENT",
+      ],
+    );
+
+    await client.query("COMMIT");
+
+    return result.rows[0];
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
+};
+
+export const updateAdminPatientService = async (patientData) => {
+  const { userId, email, firstName, lastName, phone, gender, date_of_birth } =
+    patientData;
+  const fields = [];
+  const values = [];
+  let index = 1;
+
+  if (email !== undefined) {
+    fields.push(`email = $${index++}`);
+    values.push(email);
+  }
+
+  if (firstName !== undefined) {
+    fields.push(`"firstName" = $${index++}`);
+    values.push(firstName);
+  }
+
+  if (lastName !== undefined) {
+    fields.push(`"lastName" = $${index++}`);
+    values.push(lastName);
+  }
+
+  if (phone !== undefined) {
+    fields.push(`phone = $${index++}`);
+    values.push(phone);
+  }
+
+  if (gender !== undefined) {
+    fields.push(`gender = $${index++}`);
+    values.push(gender);
+  }
+
+  if (date_of_birth !== undefined) {
+    fields.push(`date_of_birth = $${index++}`);
+    values.push(date_of_birth);
+  }
+
+  fields.push(`"updatedAt" = NOW()`);
+  values.push(userId);
+  const query = `
+    UPDATE users
+    SET ${fields.join(", ")}
+    WHERE id = $${index}
+      AND role = 'PATIENT'
+    RETURNING
+      id,
+      email,
+      "firstName",
+      "lastName",
+      phone,
+      gender,
+      date_of_birth,
+      role,
+      "createdAt",
+      "updatedAt";
+  `;
+
+  const result = await pool.query(query, values);
+
+  if (result.rows.length === 0) {
+    throw new Error("Patient not found");
+  }
+
+  return result.rows[0];
+};
+
+export const deleteAdminPatientService = async (userId) => {
+  const result = await pool.query(
+    `
+    DELETE FROM users
+    WHERE id = $1
+      AND role = 'PATIENT'
+    RETURNING id;
+    `,
+    [userId],
+  );
+
+  if (result.rows.length === 0) {
+    throw new Error("Patient not found");
+  }
+
+  return true;
 };

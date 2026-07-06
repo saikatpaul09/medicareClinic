@@ -32,6 +32,33 @@ export const specialties = [
   { name: "Orthopedics", value: "ORTHOPEDICS", icon: LocalPharmacyIcon },
   { name: "General Practice", value: "GENERAL_PRACTICE", icon: BloodtypeIcon },
 ];
+export const getHospitalOptions = ({
+  hospitals,
+}: {
+  hospitals: { name: string; id: string }[];
+}) => {
+  if (!hospitals) {
+    return [];
+  }
+  return hospitals.map((hospital) => {
+    return {
+      name: hospital.name,
+      value: hospital.id,
+    };
+  });
+};
+export const statuses = {
+  ACTIVE: "ACTIVE",
+  INACTIVE: "INACTIVE",
+  ON_LEAVE: "ON_LEAVE",
+};
+export const statusOptions = Object.keys(statuses).map((key) => ({
+  label: key
+    .replace(/_/g, " ")
+    .toLowerCase()
+    .replace(/\b\w/g, (c) => c.toUpperCase()),
+  value: statuses[key],
+}));
 export const specialtiesList = specialties.map((specialty) => {
   return {
     label: specialty.name,

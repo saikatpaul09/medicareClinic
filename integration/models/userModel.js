@@ -97,7 +97,7 @@ export const tokenLogoutService = async (refreshToken, userId) => {
 
 export const getPatientDataService = async (userId) => {
   const query =
-    'SELECT id, "firstName", "lastName", phone, email, role, gender, age FROM users WHERE id = $1 AND role = $2';
+    'SELECT id, "firstName", "lastName", phone, email, role, gender, date_of_birth FROM users WHERE id = $1 AND role = $2';
   const values = [userId, "PATIENT"];
   const result = await pool.query(query, values);
   if (!result) {
@@ -122,7 +122,7 @@ export const updatePatientProfileDetails = async (userId, updateFields) => {
     UPDATE users 
     SET ${setAssignments.join(", ")} 
     WHERE id = $1 
-    RETURNING id, "firstName", "lastName", "email", phone, gender, age;
+    RETURNING id, "firstName", "lastName", "email", phone, gender, date_of_birth;
   `;
   // 4. Map the matching values to pass into the query
   const values = [userId, ...keys.map((key) => updateFields[key])];
