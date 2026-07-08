@@ -11,15 +11,8 @@ export const getAllDoctorsListService = async ({
   const countValues = ["DOCTOR"];
   let whereClauses = ["u.role = $1"];
   let countClauses = ["u.role = $1"];
-  const {
-    firstName,
-    lastName,
-    email,
-    status,
-    license_number,
-    specialization,
-    hospital_id,
-  } = filters;
+  const { name, email, status, license_number, specialization, hospital_id } =
+    filters;
   // 1. Enforce MAX_LIMIT Guard
   let safeLimit = parseInt(limit, 10);
   if (isNaN(safeLimit) || safeLimit <= 0) {
@@ -27,17 +20,16 @@ export const getAllDoctorsListService = async ({
   } else if (safeLimit > MAX_LIMIT) {
     safeLimit = MAX_LIMIT; // Enforced upper bound
   }
-  if (firstName) {
-    queryValues.push(`%${firstName}%`);
-    countValues.push(`%${firstName}%`);
-    countClauses.push(`u."firstName" ILIKE $${countValues.length}`);
-    whereClauses.push(`u."firstName" ILIKE $${queryValues.length}`); // Case-insensitive partial match
-  }
-  if (lastName) {
-    queryValues.push(lastName);
-    countValues.push(lastName);
-    countClauses.push(`u."lastName" = $${countValues.length}`);
-    whereClauses.push(`u."lastName" = $${queryValues.length}`);
+  if (name) {
+    const formattedSearch = `%${name.trim()}%`;
+    queryValues.push(`%${formattedSearch}%`);
+    countValues.push(`%${formattedSearch}%`);
+    countClauses.push(
+      `CONCAT_WS(' ', u."firstName", u."lastName") ILIKE $${countValues.length}`,
+    );
+    whereClauses.push(
+      `CONCAT_WS(' ', u."firstName", u."lastName") ILIKE $${countValues.length}`,
+    );
   }
   if (email) {
     queryValues.push(email);
@@ -365,7 +357,7 @@ export const getAllPatientListService = async ({
   const countValues = ["PATIENT"];
   let whereClauses = ["u.role = $1"];
   let countClauses = ["u.role = $1"];
-  const { firstName, lastName, email, gender, phone_number } = filters;
+  const { name, email, gender, phone_number } = filters;
   // 1. Enforce MAX_LIMIT Guard
   let safeLimit = parseInt(limit, 10);
   if (isNaN(safeLimit) || safeLimit <= 0) {
@@ -373,18 +365,19 @@ export const getAllPatientListService = async ({
   } else if (safeLimit > MAX_LIMIT) {
     safeLimit = MAX_LIMIT; // Enforced upper bound
   }
-  if (firstName) {
-    queryValues.push(`%${firstName}%`);
-    countValues.push(`%${firstName}%`);
-    countClauses.push(`u."firstName" ILIKE $${countValues.length}`);
-    whereClauses.push(`u."firstName" ILIKE $${queryValues.length}`); // Case-insensitive partial match
+
+  if (name) {
+    const formattedSearch = `%${name.trim()}%`;
+    queryValues.push(`%${formattedSearch}%`);
+    countValues.push(`%${formattedSearch}%`);
+    countClauses.push(
+      `CONCAT_WS(' ', u."firstName", u."lastName") ILIKE $${countValues.length}`,
+    );
+    whereClauses.push(
+      `CONCAT_WS(' ', u."firstName", u."lastName") ILIKE $${countValues.length}`,
+    );
   }
-  if (lastName) {
-    queryValues.push(lastName);
-    countValues.push(lastName);
-    countClauses.push(`u."lastName" = $${countValues.length}`);
-    whereClauses.push(`u."lastName" = $${queryValues.length}`);
-  }
+
   if (email) {
     queryValues.push(email);
     countValues.push(email);
@@ -623,4 +616,84 @@ export const deleteAdminPatientService = async (userId) => {
   }
 
   return true;
+};
+
+export const fetchDashboardOverViewService = async () => {
+  const query = `
+    SELECT
+      (SELECT COUNT(*) FROM users WHERE role = 'DOCTOR') AS total_doctors,
+      (SELECT COUNT(*) FROM users WHERE role = 'PATIENT') AS total_patients,
+      (SELECT COUNT(*) FROM hospitals) AS total_hospitals,
+      (SELECT COUNT(*) FROM appointments) AS total_appointments;
+  `;
+  const { rows } = await pool.query(query);
+  return {
+    totalDoctors: Number(rows[0].total_doctors),
+    totalPatients: Number(rows[0].total_patients),
+    totalHospitals: Number(rows[0].total_hospitals),
+    totalAppointments: Number(rows[0].total_appointments),
+  };
+};
+
+export const getDoctorSchedulesService = async (doctorId) => {
+  const query = `
+    SELECT
+      id,
+      doctor_id,
+      day_of_week,
+      start_time,
+      end_time,
+      is_available
+    FROM schedules
+    WHERE doctor_id = $1
+    ORDER BY day_of_week, start_time;
+  `;
+  const { rows } = await pool.query(query, [doctorId]);
+  return rows;
+};
+
+export const updateDoctorSchedulesService = async (doctorId, schedules) => {
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+
+    await client.query(
+      `
+      DELETE FROM schedules
+      WHERE doctor_id = $1
+      `,
+      [doctorId],
+    );
+
+    for (const slot of schedules) {
+      await client.query(
+        `
+        INSERT INTO schedules (
+          doctor_id,
+          day_of_week,
+          start_time,
+          end_time,
+          is_available
+        )
+        VALUES ($1,$2,$3,$4,$5)
+        `,
+        [
+          doctorId,
+          slot.day_of_week,
+          slot.start_time,
+          slot.end_time,
+          slot.is_available ?? true,
+        ],
+      );
+    }
+
+    await client.query("COMMIT");
+
+    return true;
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
 };

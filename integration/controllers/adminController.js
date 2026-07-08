@@ -8,6 +8,9 @@ import {
   getAllPatientListService,
   updateAdminPatientService,
   updateDoctorService,
+  fetchDashboardOverViewService,
+  getDoctorSchedulesService,
+  updateDoctorSchedulesService,
 } from "../models/adminModel.js";
 import { handleResponse } from "../utils/helpers.js";
 export const fetchAllDoctorsController = asyncHandler(async (req, res) => {
@@ -124,3 +127,35 @@ export const deleteAdminPatientController = asyncHandler(async (req, res) => {
     return handleResponse(res, 500, error.message);
   }
 });
+
+export const getDashboardOverviewController = asyncHandler(async (req, res) => {
+  try {
+    const result = await fetchDashboardOverViewService();
+    return handleResponse(res, 200, "overview fetched successfully", result);
+  } catch (error) {
+    return handleResponse(res, 500, error.message);
+  }
+});
+
+export const getDoctorSchedulesController = asyncHandler(async (req, res) => {
+  const { doctorId } = req.params;
+  const schedules = await getDoctorSchedulesService(doctorId);
+  return handleResponse(res, 200, "fetched schedules", { data: schedules });
+});
+
+export const updateDoctorSchedulesController = asyncHandler(
+  async (req, res) => {
+    const { doctorId } = req.params;
+    const { schedules } = req.body;
+    if (!Array.isArray(schedules)) {
+      return res.status(400).json({
+        success: false,
+        message: "Schedules must be an array",
+      });
+    }
+    await updateDoctorSchedulesService(doctorId, schedules);
+    return handleResponse(res, 200, "Schedules updated successfully", {
+      data: schedules,
+    });
+  },
+);

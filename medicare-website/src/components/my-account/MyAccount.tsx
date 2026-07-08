@@ -8,7 +8,7 @@ import AudioFileRoundedIcon from "@mui/icons-material/AudioFileRounded";
 import EventAvailableRoundedIcon from "@mui/icons-material/EventAvailableRounded";
 import { useMutation } from "@tanstack/react-query";
 import { apiClientWithAuth } from "../../api/client";
-import { LOGOUT_USER } from "../../api/mutations";
+import { LOGOUT_USER } from "../../api/apiRoutes";
 import useAuthStore from "../../store";
 import { EditProfile } from "./EditProfile";
 import { shortNameHelper } from "../../utils/helpers";

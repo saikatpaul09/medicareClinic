@@ -6,7 +6,7 @@ export const useAllHospitalData = () => {
   return useQuery({
     queryKey: ["hospitalList"],
     queryFn: async () => {
-      const response = await apiClient.get(GET_ALL_HOSPITALS);
+      const response = await apiClient.post(GET_ALL_HOSPITALS, {});
       return response.data;
     },
     staleTime: Infinity, // Keep data fresh

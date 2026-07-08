@@ -10,7 +10,7 @@ import useAuthStore from "../../store";
 import { roles } from "../../constants";
 import { type SideBarRole } from "../../types";
 import { apiClientWithAuth } from "../../api/client";
-import { LOGIN_USER } from "../../api/mutations";
+import { LOGIN_USER } from "../../api/apiRoutes";
 import { EMAIL_REGEX } from "../../constants";
 import { useNavigate, useLocation } from "react-router";
 export const Login = () => {

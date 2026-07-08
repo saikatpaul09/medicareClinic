@@ -5,7 +5,7 @@ import {
   useMutation,
 } from "@tanstack/react-query";
 import { apiClientWithAuth } from "../../api/client";
-import { GET_ADMIN_ALL_DOCTORS_LIST } from "../../api/query";
+import { DOCTORS_API_ROUTE, DOCTOR_API_ROUTE } from "../../api/apiRoutes";
 import useAuthStore from "../../store";
 import { Button, DataTable } from "../../components";
 import type { GridColDef, GridPaginationModel } from "@mui/x-data-grid";
@@ -26,7 +26,6 @@ import BorderColorOutlinedIcon from "@mui/icons-material/BorderColorOutlined";
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
 import { EditOrAddDoctorForm } from "./EditAndAddDoctorForm";
 import { useAllHospitalData } from "../../hooks/useAllHospitalData";
-import { DELETE_ADMIN_DOCTOR_PROFILE } from "../../api/mutations";
 
 export const DoctorsList = () => {
   const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
@@ -51,8 +50,7 @@ export const DoctorsList = () => {
     },
   });
   const [filtersApply, setFiltersApply] = useState({
-    firstName: "",
-    lastName: "",
+    name: "",
     email: "",
     license_number: "",
     specialization: "",
@@ -69,7 +67,7 @@ export const DoctorsList = () => {
   });
   const getAllDoctorsList = async () => {
     try {
-      const result = await apiClientWithAuth.post(GET_ADMIN_ALL_DOCTORS_LIST, {
+      const result = await apiClientWithAuth.post(DOCTORS_API_ROUTE, {
         limit: paginationModel.pageSize,
         nextCursor: pageCursorMap[paginationModel.page] || null,
         filters: { ...filtersApply },
@@ -120,8 +118,7 @@ export const DoctorsList = () => {
   const applyFilters = () => {
     resetPagination();
     setFiltersApply({
-      firstName: filters.name.split(" ")[0] || "",
-      lastName: filters.name.split(" ")[1] || "",
+      name: filters.name,
       email: filters.email,
       license_number: filters.license_number,
       specialization: filters.specialization.value,
@@ -144,8 +141,7 @@ export const DoctorsList = () => {
       },
     });
     setFiltersApply({
-      firstName: "",
-      lastName: "",
+      name: "",
       email: "",
       license_number: "",
       specialization: "",
@@ -156,10 +152,9 @@ export const DoctorsList = () => {
   const { mutate: deleteDoctorHandler } = useMutation({
     mutationKey: ["deleteAdminDocRecord"],
     mutationFn: async (id) => {
-      const response = await apiClientWithAuth.delete(
-        DELETE_ADMIN_DOCTOR_PROFILE,
-        { data: { userId: id } },
-      );
+      const response = await apiClientWithAuth.delete(DOCTOR_API_ROUTE, {
+        data: { userId: id },
+      });
       return response.data;
     },
     onSuccess: () => {
@@ -319,8 +314,7 @@ export const DoctorsList = () => {
                       setFilters({ ...filters, name: "" });
                       setFiltersApply({
                         ...filtersApply,
-                        firstName: "",
-                        lastName: "",
+                        name: "",
                       });
                     }}
                     edge="end"

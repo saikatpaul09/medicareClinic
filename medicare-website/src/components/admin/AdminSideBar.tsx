@@ -36,6 +36,11 @@ const sidebarContent = [
     icon: LocalHospitalIcon,
     url: "/dashboard/hospital-list",
   },
+  {
+    id: "Doctor Slots",
+    icon: LocalHospitalIcon,
+    url: "/dashboard/doctor-slots",
+  },
 ];
 export const AdminSideBar = () => {
   const location = useLocation();

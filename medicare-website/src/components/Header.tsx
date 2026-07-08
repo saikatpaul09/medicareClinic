@@ -5,7 +5,7 @@ import Grid from "@mui/material/Grid";
 // import InputLabel from "@mui/material/InputLabel";
 // import MenuItem from "@mui/material/MenuItem";
 // import Select from "@mui/material/Select";
-import { AutocompleteSearchBar } from "./auto-complete/AutoComplete";
+import { SearchDoctors } from "./search-doctor/SearchDoctors";
 import PermIdentityIcon from "@mui/icons-material/PermIdentity";
 import AccountCircleRoundedIcon from "@mui/icons-material/AccountCircleRounded";
 import theme from "../theme";
@@ -14,24 +14,33 @@ import useAuthStore from "../store";
 import { SideBar } from "./SideBar";
 import { roles } from "../constants";
 import type { SideBarRole } from "../types";
+import useViewStore from "../store/useViewStore";
 
 export const Header = () => {
   const sideBarRole = useAuthStore((state) => state.login.sideBarRole);
   const openPopup = useAuthStore((state) => state.login.openPopup);
   const userInfo = useAuthStore((state) => state.login.userInfo);
+  const isSearchView = useViewStore((state) => state.view.isSearchView);
   const role = useAuthStore((state) => state.login.role);
   return (
-    <header style={{ borderBottom: `1px solid ${theme.palette.divider}` }}>
+    <header
+      style={{
+        borderBottom: !isSearchView
+          ? `1px solid ${theme.palette.divider}`
+          : "none",
+      }}
+    >
       <Box
         sx={{
           marginTop: "8px",
+          maxWidth: "100%",
         }}
       >
         <Grid container>
           <Grid size={{ sm: 1 }}>
             <img src={logo} width={90} height={90} alt="Medicare Logo" />
           </Grid>
-          <Grid size={{ xs: 3, sm: 3 }} sx={{ marginTop: "20px" }}>
+          <Grid size={{ xs: 2.5, sm: 2.5 }} sx={{ marginTop: "20px" }}>
             {/* <FormControl
               fullWidth
               variant="standard"
@@ -53,21 +62,7 @@ export const Header = () => {
           </Grid>
           <Grid size={{ md: 6, xs: 6, sm: 5 }}>
             <Box sx={{ width: "80%", marginTop: "20px" }}>
-              <AutocompleteSearchBar
-                list={[
-                  {
-                    id: 1,
-                    name: "Dr. John Doe",
-                    designation: "Cardiologist",
-                  },
-                  {
-                    id: 2,
-                    name: "Dr. Neu Doe",
-                    designation: "Cardiologist",
-                  },
-                ]}
-                onChange={(e) => console.log(e)}
-              />
+              <SearchDoctors />
             </Box>
           </Grid>
           <Grid size={{ xs: 2, sm: 2 }}>
@@ -88,7 +83,7 @@ export const Header = () => {
                 gap: "4px",
                 alignItems: "center",
                 height: "40px",
-                width: "120px",
+                width: "100px",
               }}
             >
               {userInfo && role === "PATIENT" ? (

@@ -3,10 +3,11 @@ import {
   createHospitalService,
   updateHospitalService,
   getAllHospitalsService,
+  deleteHospitalService,
 } from "../models/hospitalModel.js";
 import { handleResponse } from "../utils/helpers.js";
 
-export const createHospital = asyncHandler(async (req, res) => {
+export const createHospitalController = asyncHandler(async (req, res) => {
   const { name, address, contactNumber, state, pin } = req.body;
   const hospital = await createHospitalService({
     name,
@@ -21,11 +22,8 @@ export const createHospital = asyncHandler(async (req, res) => {
   });
 });
 
-export const updateHospital = asyncHandler(async (req, res) => {
-  const { hospitalId } = req.params;
-
-  const { name, address, contactNumber, state, pin } = req.body;
-
+export const updateHospitalController = asyncHandler(async (req, res) => {
+  const { hospitalId, name, address, contactNumber, state, pin } = req.body;
   const hospital = await updateHospitalService({
     hospitalId,
     name,
@@ -45,7 +43,7 @@ export const updateHospital = asyncHandler(async (req, res) => {
 });
 
 export const getAllHospitals = asyncHandler(async (req, res) => {
-  const { search, state, limit = 10, nextCursor } = req.query;
+  const { search, state, limit = 10, nextCursor } = req.body;
   const result = await getAllHospitalsService({
     search,
     state,
@@ -56,4 +54,16 @@ export const getAllHospitals = asyncHandler(async (req, res) => {
     return handleResponse(res, 404, "Hospitals not found");
   }
   return handleResponse(res, 200, "Hospitals fetched successfully", result);
+});
+
+export const deleteHospitalController = asyncHandler(async (req, res) => {
+  const { id } = req.body;
+
+  const hospital = await deleteHospitalService(id);
+
+  if (!hospital) {
+    return handleResponse(res, 404, "Hospital not found");
+  }
+
+  return handleResponse(res, 200, "Hospital deleted successfully");
 });

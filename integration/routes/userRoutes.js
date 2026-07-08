@@ -20,12 +20,16 @@ import {
   createAdminPatientController,
   deleteAdminPatientController,
   deleteDoctorController,
+  getDashboardOverviewController,
+  updateDoctorSchedulesController,
+  getDoctorSchedulesController,
 } from "../controllers/adminController.js";
 import {
-  createHospital,
+  updateHospitalController,
+  deleteHospitalController,
   getAllHospitals,
+  createHospitalController,
 } from "../controllers/hospitalControllers.js";
-import { updateHospitalService } from "../models/hospitalModel.js";
 
 const router = express.Router();
 
@@ -101,19 +105,45 @@ router.delete(
   deleteAdminPatientController,
 );
 router.post(
-  "/hospitals",
+  "/hospital",
   authenticateJWT,
   authorizeRoles("ADMIN"),
-  createHospital,
+  createHospitalController,
 );
 
 router.put(
-  "/:hospitals",
+  "/hospital",
   authenticateJWT,
   authorizeRoles("ADMIN"),
-  updateHospitalService,
+  updateHospitalController,
 );
 
-router.get("/hospitals", getAllHospitals);
+router.delete(
+  "/hospital",
+  authenticateJWT,
+  authorizeRoles("ADMIN"),
+  deleteHospitalController,
+);
+
+router.post("/hospitals", getAllHospitals);
+router.get(
+  "/overview",
+  authenticateJWT,
+  authorizeRoles("ADMIN"),
+  getDashboardOverviewController,
+);
+
+router.get(
+  "/doctor-slots/:doctorId",
+  authenticateJWT,
+  authorizeRoles("ADMIN", "DOCTOR"),
+  getDoctorSchedulesController,
+);
+router.put(
+  "/doctor-slots/:doctorId",
+  authenticateJWT,
+  authorizeRoles("ADMIN", "DOCTOR"),
+  updateDoctorSchedulesController,
+);
 
 export default router;

@@ -13,8 +13,7 @@ import { EMAIL_REGEX } from "../../constants";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import FormGroup from "@mui/material/FormGroup";
 import Typography from "@mui/material/Typography";
-import { GET_PATIENT_PROFILE_DETAILS } from "../../api/query";
-import { UPDATE_PATIENT_PROFILE_DETAILS } from "../../api/mutations";
+import { PATIENT_API_ROUTE } from "../../api/apiRoutes";
 import { apiClientWithAuth } from "../../api/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader } from "../Loader";
@@ -42,7 +41,7 @@ export const EditProfile = ({
   const userId = userInfo.user.id;
   const getPatientProfileDetails = async () => {
     try {
-      const result = await apiClientWithAuth.get(GET_PATIENT_PROFILE_DETAILS);
+      const result = await apiClientWithAuth.get(PATIENT_API_ROUTE);
       if (result) {
         return result.data.data.user;
       }
@@ -60,7 +59,7 @@ export const EditProfile = ({
   const { mutate: mutuateUpdateProfile, isPending } = useMutation({
     mutationFn: async (formData: ProfileForm) => {
       const response = await apiClientWithAuth.post(
-        UPDATE_PATIENT_PROFILE_DETAILS,
+        PATIENT_API_ROUTE,
         formData,
       );
       return response.data;
@@ -81,7 +80,6 @@ export const EditProfile = ({
       handleClose();
     },
     onError: (error) => {
-      console.error("Error updating profile:", error);
       alert(`Error updating profile: ${error?.message ?? error}`);
     },
   });

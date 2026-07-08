@@ -14,12 +14,7 @@ import { EMAIL_REGEX, specialtiesList, statusOptions } from "../../constants";
 import Autocomplete from "@mui/material/Autocomplete";
 import CurrencyRupeeOutlinedIcon from "@mui/icons-material/CurrencyRupeeOutlined";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
-import {
-  CREATE_NEW_DOCTOR,
-  UPDATE_DOCTOR,
-  ADMIN_CREATE_NEW_PATIENT,
-  ADMIN_UPDATE_PATIENT,
-} from "../../api/mutations";
+import { DOCTOR_API_ROUTE, PATIENT_API_ROUTE } from "../../api/apiRoutes";
 import { apiClientWithAuth } from "../../api/client";
 import RestartAltRoundedIcon from "@mui/icons-material/RestartAltRounded";
 import RemoveRedEyeOutlinedIcon from "@mui/icons-material/RemoveRedEyeOutlined";
@@ -70,12 +65,7 @@ export const EditOrAddDoctorForm = ({
     consultation_fee: "",
     date_of_birth: "",
   });
-  const disabled =
-    error.firstName ||
-    error.lastName ||
-    error.email ||
-    error.password ||
-    error.date_of_birth;
+
   const [toggle, setToggle] = useState<boolean>(false);
   const [formData, setFormData] = useState({
     firstName: doctorData?.firstName || "",
@@ -92,8 +82,13 @@ export const EditOrAddDoctorForm = ({
     hospital_id: doctorData?.hospital_id || "",
     status: doctorData?.status || "ACTIVE",
   });
-
   const [password, setPassword] = useState("");
+  const disabled =
+    !formData.firstName ||
+    !formData.lastName ||
+    !formData.email ||
+    (mode === "add" && !password) ||
+    !formData.date_of_birth;
   const queryClient = useQueryClient();
   const isDoctor = profile === "DOCTOR";
   const title =
@@ -113,16 +108,11 @@ export const EditOrAddDoctorForm = ({
         ? "New doctor added"
         : "New patient added";
   const { mutate: updateDoctorHandler, isPending } = useMutation({
-    mutationKey: profile === "DOCTOR" ? ["updateDoctor"] : ["updatePatient"],
+    mutationKey:
+      profile === "DOCTOR" ? ["updateOrAddDoctor"] : ["updateOrAddPatient"],
     mutationFn: async () => {
-      const API =
-        mode === "edit"
-          ? profile === "DOCTOR"
-            ? UPDATE_DOCTOR
-            : ADMIN_UPDATE_PATIENT
-          : profile === "DOCTOR"
-            ? CREATE_NEW_DOCTOR
-            : ADMIN_CREATE_NEW_PATIENT;
+      const API = profile === "DOCTOR" ? DOCTOR_API_ROUTE : PATIENT_API_ROUTE;
+
       const methodType = mode === "edit" ? "put" : "post";
       const response = await apiClientWithAuth[methodType](API, {
         ...(mode === "edit" && {

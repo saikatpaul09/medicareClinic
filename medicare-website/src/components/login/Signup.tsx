@@ -8,7 +8,7 @@ import { Button } from "../button/Button";
 import { EMAIL_REGEX, roles } from "../../constants";
 import type { SideBarRole } from "../../types";
 import useBoundStore from "../../store";
-import { REGISTER_USER } from "../../api/mutations";
+import { REGISTER_USER } from "../../api/apiRoutes";
 import { apiClient } from "../../api/client";
 
 export const SignUp = () => {
@@ -37,8 +37,6 @@ export const SignUp = () => {
     onSuccess: () => {
       alert("User created successfully! Please log in.");
       openPopup(roles.LOGIN as SideBarRole);
-      // Optionally, you can log the user in immediately after registration
-      // or redirect them to a welcome page.
     },
     onError: (error) => {
       console.error("Error creating user:", error);

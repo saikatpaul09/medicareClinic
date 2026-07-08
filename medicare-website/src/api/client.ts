@@ -1,6 +1,6 @@
 import axios from "axios";
 import useAuthStore from "../store";
-import { REFRESH_TOKEN } from "./mutations";
+import { REFRESH_TOKEN } from "./apiRoutes";
 
 // Access the environment variable using import.meta.env
 export const apiClient = axios.create({
