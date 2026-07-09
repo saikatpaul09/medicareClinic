@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router";
-
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
@@ -14,7 +13,6 @@ import Skeleton from "@mui/material/Skeleton";
 import Breadcrumbs from "@mui/material/Breadcrumbs";
 import Link from "@mui/material/Link";
 import Divider from "@mui/material/Divider";
-
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import SchoolIcon from "@mui/icons-material/School";
@@ -22,7 +20,6 @@ import ChatIcon from "@mui/icons-material/Chat";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import ThumbUpOffAltIcon from "@mui/icons-material/ThumbUpOffAlt";
 import ThumbDownOffAltIcon from "@mui/icons-material/ThumbDownOffAlt";
-
 import { apiClient } from "../../api/client";
 import { DOCTOR_API_ROUTE, DOCTOR_API_SLOT_ROUTE } from "../../api/apiRoutes";
 import { useAllHospitalData } from "../../hooks/useAllHospitalData";
