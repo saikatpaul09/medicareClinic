@@ -50,6 +50,10 @@ export const EditOrAddDoctorForm = ({
     consultation_fee: string;
     hospital_id: string;
     status: string;
+    experience: number;
+    institution_name: string;
+    description: string;
+    degree_name: string;
   } | null;
   profile: Profile;
   hospitalOptions?: { name: string; value: string }[];
@@ -64,6 +68,10 @@ export const EditOrAddDoctorForm = ({
     specialization: "",
     consultation_fee: "",
     date_of_birth: "",
+    experience: "",
+    institution_name: "",
+    description: "",
+    degree_name: "",
   });
 
   const [toggle, setToggle] = useState<boolean>(false);
@@ -81,6 +89,10 @@ export const EditOrAddDoctorForm = ({
     consultation_fee: doctorData?.consultation_fee || "",
     hospital_id: doctorData?.hospital_id || "",
     status: doctorData?.status || "ACTIVE",
+    experience: doctorData?.experience,
+    institution_name: doctorData?.institution_name || "",
+    description: doctorData?.description || "",
+    degree_name: doctorData?.degree_name || "",
   });
   const [password, setPassword] = useState("");
   const disabled =
@@ -88,7 +100,13 @@ export const EditOrAddDoctorForm = ({
     !formData.lastName ||
     !formData.email ||
     (mode === "add" && !password) ||
-    !formData.date_of_birth;
+    !formData.date_of_birth ||
+    (profile === "DOCTOR" &&
+      (!formData.institution_name ||
+        !formData.specialization ||
+        !formData.degree_name ||
+        !formData.experience ||
+        !formData.description));
   const queryClient = useQueryClient();
   const isDoctor = profile === "DOCTOR";
   const title =
@@ -133,6 +151,10 @@ export const EditOrAddDoctorForm = ({
           consultation_fee: formData?.consultation_fee,
           hospital_id: formData?.hospital_id,
           status: formData?.status,
+          experience: formData?.experience,
+          institution_name: formData?.institution_name,
+          description: formData?.description,
+          degree_name: formData?.degree_name,
         }),
       });
 
@@ -450,6 +472,30 @@ export const EditOrAddDoctorForm = ({
                 gap: "10px",
               }}
             >
+              <TextField
+                label="Institution Name"
+                sx={{ width: "230px" }}
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                color="secondary"
+                value={formData.institution_name}
+                onChange={(e) =>
+                  setFormData({ ...formData, institution_name: e.target.value })
+                }
+              />
+              <TextField
+                label="Degree"
+                sx={{ width: "230px" }}
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                color="secondary"
+                value={formData.degree_name}
+                onChange={(e) =>
+                  setFormData({ ...formData, degree_name: e.target.value })
+                }
+              />
               <Autocomplete
                 sx={{ width: 230 }}
                 color="secondary"
@@ -509,6 +555,23 @@ export const EditOrAddDoctorForm = ({
                   },
                 }}
               />
+              <TextField
+                label="Experience"
+                sx={{ width: "230px" }}
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                color="secondary"
+                type="number"
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    experience: Number(e.target.value),
+                  })
+                }
+                value={formData.experience}
+              />
+
               <Autocomplete
                 sx={{ width: 260 }}
                 color="secondary"
@@ -558,6 +621,22 @@ export const EditOrAddDoctorForm = ({
                     variant="outlined"
                   />
                 )}
+              />
+              <TextField
+                label="Description"
+                sx={{ width: "350px" }}
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                multiline
+                color="secondary"
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    description: e.target.value,
+                  })
+                }
+                value={formData.description}
               />
             </Box>
           </>

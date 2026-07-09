@@ -8,6 +8,7 @@ import { AffiliatedHospitals } from "./pages/admin-dashboard/AffiliatedHospitals
 import { DashboardOverview } from "./pages/admin-dashboard/OverView";
 import { DoctorSLots } from "./pages/admin-dashboard/DoctorSlots";
 import { DoctorScheduleManager } from "./pages/admin-dashboard/DoctorScheduleManager";
+import { DoctorBookAppointmentPage } from "./pages/appointment";
 
 const queryClient = new QueryClient();
 
@@ -21,15 +22,14 @@ const App = () => {
               path="/unauthorized"
               element={<h1>403 - Unauthorized Access</h1>}
             />
-            <Route
-              path="/"
-              element={
-                <>
-                  <Header />
-                  <HomePage />
-                </>
-              }
-            />
+            <Route path="/" element={<Header />}>
+              <Route index element={<HomePage />} />
+              <Route
+                index={true}
+                path="/doctor/:doctorName/:doctorId"
+                element={<DoctorBookAppointmentPage />}
+              />
+            </Route>
             <Route element={<ProtectedRoute allowedRoles={["ADMIN"]} />}>
               <Route path="/dashboard" element={<AdminDashBoardLayout />}>
                 <Route
@@ -58,8 +58,11 @@ const App = () => {
                   element={<AffiliatedHospitals />}
                 />
               </Route>
+              <Route
+                path="*"
+                element={<Navigate to="/unauthorized" replace />}
+              />
             </Route>
-            <Route path="*" element={<Navigate to="/unauthorized" replace />} />
           </Routes>
         </BrowserRouter>
       </AuthProvider>

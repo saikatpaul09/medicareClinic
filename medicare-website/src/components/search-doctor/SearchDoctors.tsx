@@ -4,7 +4,7 @@ import TextField from "@mui/material/TextField";
 import SearchIcon from "@mui/icons-material/Search";
 import InputAdornment from "@mui/material/InputAdornment";
 import { Loader } from "../Loader";
-import { apiClientWithAuth } from "../../api/client";
+import { apiClient } from "../../api/client";
 import { DOCTORS_API_ROUTE } from "../../api/apiRoutes";
 import { useQuery } from "@tanstack/react-query";
 import { FetchProducts } from "./FetchProducts";
@@ -16,7 +16,7 @@ export const SearchDoctors = () => {
   const { isSearchView, setSearchView } = useViewStore((state) => state.view);
   const getAllDoctorsList = async () => {
     try {
-      const result = await apiClientWithAuth.post(DOCTORS_API_ROUTE, {
+      const result = await apiClient.post(DOCTORS_API_ROUTE, {
         filters: { name: input },
       });
       return result.data;
@@ -76,7 +76,11 @@ export const SearchDoctors = () => {
         }}
       />
       {isSearchView && (
-        <FetchProducts searchString={input} data={data?.data?.doctors} />
+        <FetchProducts
+          resetInput={() => setInput("")}
+          searchString={input}
+          data={data?.data?.doctors}
+        />
       )}
     </Box>
   );

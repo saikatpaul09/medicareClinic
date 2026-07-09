@@ -11,15 +11,18 @@ import {
   fetchDashboardOverViewService,
   getDoctorSchedulesService,
   updateDoctorSchedulesService,
+  getDoctorByIdService,
 } from "../models/adminModel.js";
 import { handleResponse } from "../utils/helpers.js";
 export const fetchAllDoctorsController = asyncHandler(async (req, res) => {
+  const role = req?.user?.role;
   const { filters, limit, nextCursor } = req.body || {};
   try {
     const doctorsListObj = await getAllDoctorsListService({
       filters,
       limit,
       nextCursor,
+      role,
     });
     if (!doctorsListObj || doctorsListObj.data.length === 0) {
       return handleResponse(res, 200, "doctor list fetched", {
@@ -159,3 +162,25 @@ export const updateDoctorSchedulesController = asyncHandler(
     });
   },
 );
+
+export const fetchDoctorByIdController = asyncHandler(async (req, res) => {
+  const { doctorId } = req.params;
+  const role = req?.user?.role;
+
+  try {
+    const doctor = await getDoctorByIdService({
+      doctorId,
+      role,
+    });
+
+    if (!doctor) {
+      return handleResponse(res, 404, "Doctor not found");
+    }
+
+    return handleResponse(res, 200, "Doctor fetched successfully", {
+      doctor,
+    });
+  } catch (error) {
+    return handleResponse(res, 500, error.message);
+  }
+});

@@ -23,6 +23,7 @@ import {
   getDashboardOverviewController,
   updateDoctorSchedulesController,
   getDoctorSchedulesController,
+  fetchDoctorByIdController,
 } from "../controllers/adminController.js";
 import {
   updateHospitalController,
@@ -49,13 +50,14 @@ router.post(
   authorizeRoles("PATIENT", "ADMIN"),
   updatePatientDetailsController,
 );
+router.post("/doctors", fetchAllDoctorsController);
+router.post("/doctors", fetchAllDoctorsController);
 router.post(
-  "/doctors",
+  "/doctors-list",
   authenticateJWT,
   authorizeRoles("ADMIN"),
   fetchAllDoctorsController,
 );
-
 router.post(
   "/doctor",
   authenticateJWT,
@@ -133,17 +135,12 @@ router.get(
   getDashboardOverviewController,
 );
 
-router.get(
-  "/doctor-slots/:doctorId",
-  authenticateJWT,
-  authorizeRoles("ADMIN", "DOCTOR"),
-  getDoctorSchedulesController,
-);
+router.get("/doctor-slots/:doctorId", getDoctorSchedulesController);
 router.put(
   "/doctor-slots/:doctorId",
   authenticateJWT,
   authorizeRoles("ADMIN", "DOCTOR"),
   updateDoctorSchedulesController,
 );
-
+router.get("/doctor/:doctorId", fetchDoctorByIdController);
 export default router;

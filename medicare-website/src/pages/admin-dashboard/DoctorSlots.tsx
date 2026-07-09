@@ -1,6 +1,6 @@
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { apiClientWithAuth } from "../../api/client";
-import { DOCTORS_API_ROUTE } from "../../api/apiRoutes";
+import { ADMIN_GET_DOCTORS_LIST } from "../../api/apiRoutes";
 import useAuthStore from "../../store";
 import { Button, DataTable } from "../../components";
 import type { GridColDef, GridPaginationModel } from "@mui/x-data-grid";
@@ -57,7 +57,7 @@ export const DoctorSLots = () => {
   });
   const getAllDoctorsList = async () => {
     try {
-      const result = await apiClientWithAuth.post(DOCTORS_API_ROUTE, {
+      const result = await apiClientWithAuth.post(ADMIN_GET_DOCTORS_LIST, {
         limit: paginationModel.pageSize,
         nextCursor: pageCursorMap[paginationModel.page] || null,
         filters: { ...filtersApply },
@@ -108,7 +108,7 @@ export const DoctorSLots = () => {
   const applyFilters = () => {
     resetPagination();
     setFiltersApply({
-      name: "",
+      name: filters.name,
       email: filters.email,
       license_number: filters.license_number,
       specialization: filters.specialization.value,

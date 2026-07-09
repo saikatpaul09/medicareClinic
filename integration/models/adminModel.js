@@ -6,11 +6,18 @@ export const getAllDoctorsListService = async ({
   filters = {},
   limit = 10,
   nextCursor,
+  role,
 }) => {
   const queryValues = ["DOCTOR"];
   const countValues = ["DOCTOR"];
   let whereClauses = ["u.role = $1"];
   let countClauses = ["u.role = $1"];
+  const isAdmin = role === "ADMIN";
+  const phoneColumn = isAdmin ? `u.phone` : `NULL AS phone`;
+  const licenseColumn = isAdmin
+    ? `ui.license_number`
+    : `NULL AS license_number`;
+  const dobColumn = isAdmin ? `u.date_of_birth` : `NULL AS date_of_birth`;
   const { name, email, status, license_number, specialization, hospital_id } =
     filters;
   // 1. Enforce MAX_LIMIT Guard
@@ -37,7 +44,7 @@ export const getAllDoctorsListService = async ({
     countClauses.push(`u.email = $${countValues.length}`);
     whereClauses.push(`u.email = $${queryValues.length}`);
   }
-  if (status) {
+  if (status && isAdmin) {
     queryValues.push(status);
     countValues.push(status);
     countClauses.push(`ui.status = $${countValues.length}`);
@@ -49,7 +56,7 @@ export const getAllDoctorsListService = async ({
     countClauses.push(`ui.specialization = $${countValues.length}`);
     whereClauses.push(`ui.specialization = $${queryValues.length}`);
   }
-  if (license_number) {
+  if (license_number && isAdmin) {
     queryValues.push(license_number);
     countValues.push(license_number);
     countClauses.push(`ui.license_number = $${countValues.length}`);
@@ -86,15 +93,20 @@ export const getAllDoctorsListService = async ({
       u.email, 
       u."firstName", 
       u."lastName", 
-      u.phone,
+      ${phoneColumn},
       u.gender,
-      u.date_of_birth,
+      ${dobColumn},
       u."createdAt",
       u."updatedAt",
       ui.hospital_id,
       ui.specialization,
       ui.consultation_fee,
-      ui.license_number,
+      ui.experience,
+      ui.thumbs_up,
+      ui.institution_name,
+      ui.description,
+      ui.degree_name,
+      ${licenseColumn},
       ui.status
     FROM "users" u 
     LEFT JOIN doctors ui ON u.id = ui.user_id ${whereSql} ORDER BY u."createdAt" DESC, u.id DESC
@@ -128,7 +140,45 @@ export const getAllDoctorsListService = async ({
     totalCount: countResult.rows[0].total,
   };
 };
+export const getDoctorByIdService = async ({ doctorId, role }) => {
+  const isAdmin = role === "ADMIN";
+  const phoneColumn = isAdmin ? `u.phone` : `NULL AS phone`;
+  const licenseColumn = isAdmin ? `d.license_number` : `NULL AS license_number`;
+  const dobColumn = isAdmin ? `u.date_of_birth` : `NULL AS date_of_birth`;
+  const query = `
+    SELECT
+      u.id,
+      u.email,
+      u."firstName",
+      u."lastName",
+      ${phoneColumn},
+      u.gender,
+      ${dobColumn},
+      u."createdAt",
+      u."updatedAt",
+      d.hospital_id,
+      d.specialization,
+      d.consultation_fee,
+      d.experience,
+      d.thumbs_up,
+      d.institution_name,
+      d.description,
+      d.degree_name,
+      ${licenseColumn},
+      d.status
+    FROM "users" u
+    LEFT JOIN doctors d
+      ON u.id = d.user_id
 
+    WHERE
+      u.id = $1
+      AND u.role = 'DOCTOR'
+
+    LIMIT 1;
+  `;
+  const { rows } = await pool.query(query, [doctorId]);
+  return rows[0] || null;
+};
 export const createDoctorService = async (doctorData) => {
   const client = await pool.connect();
   const {
@@ -140,6 +190,10 @@ export const createDoctorService = async (doctorData) => {
     gender,
     date_of_birth,
     hospital_id,
+    experience,
+    institution_name,
+    description,
+    degree_name,
     specialization,
     consultation_fee,
     license_number,
@@ -195,10 +249,14 @@ export const createDoctorService = async (doctorData) => {
         specialization,
         consultation_fee,
         license_number,
-        status
+        status,
+        experience,
+        institution_name,
+        description,
+        degree_name
       )
       VALUES (
-        $1,$2,$3,$4,$5,$6
+        $1,$2,$3,$4,$5,$6,$7,$8,$9,$10
       )
       RETURNING *;
     `;
@@ -210,6 +268,10 @@ export const createDoctorService = async (doctorData) => {
       consultation_fee,
       license_number,
       status || "ACTIVE",
+      experience,
+      institution_name,
+      description,
+      degree_name,
     ]);
 
     await client.query("COMMIT");
@@ -244,6 +306,10 @@ export const updateDoctorService = async (doctorData) => {
       consultation_fee,
       license_number,
       status,
+      experience,
+      institution_name,
+      description,
+      degree_name,
     } = doctorData;
 
     await client.query(
@@ -281,8 +347,12 @@ export const updateDoctorService = async (doctorData) => {
           consultation_fee = COALESCE($3, consultation_fee),
           license_number = COALESCE($4, license_number),
           status = COALESCE($5, status),
+          experience= COALESCE($6, experience),
+          institution_name= COALESCE($7, institution_name),
+          description= COALESCE($8, description),
+          degree_name= COALESCE($9, degree_name),
           updated_at = NOW()
-        WHERE user_id = $6
+          WHERE user_id = $10
         `,
         [
           hospital_id,
@@ -290,6 +360,10 @@ export const updateDoctorService = async (doctorData) => {
           consultation_fee,
           license_number,
           status,
+          experience,
+          institution_name,
+          description,
+          degree_name,
           userId,
         ],
       );
@@ -303,9 +377,13 @@ export const updateDoctorService = async (doctorData) => {
           consultation_fee,
           license_number,
           status
+          experience,
+          institution_name,
+          description,
+          degree_name,
         )
         VALUES (
-          $1,$2,$3,$4,$5,$6
+          $1,$2,$3,$4,$5,$6,$7,$8,$9,$10
         )
         `,
         [
@@ -315,6 +393,10 @@ export const updateDoctorService = async (doctorData) => {
           consultation_fee,
           license_number,
           status || "ACTIVE",
+          experience,
+          institution_name,
+          description,
+          degree_name,
         ],
       );
     }

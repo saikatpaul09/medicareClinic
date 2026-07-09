@@ -6,10 +6,13 @@ import Chip from "@mui/material/Chip";
 import Typography from "@mui/material/Typography";
 import { useAllHospitalData } from "../../hooks/useAllHospitalData";
 import theme from "../../theme";
+import { useNavigate } from "react-router";
+import useViewStore from "../../store/useViewStore";
 
 export const FetchProducts = ({
   searchString,
   data,
+  resetInput,
 }: {
   searchString: string;
   data: {
@@ -18,10 +21,15 @@ export const FetchProducts = ({
     lastName: string;
     specialization: string;
     hospital_id: string;
+    experience: number;
+    degree: string;
   }[];
+  resetInput: () => void;
 }) => {
+  console.log(data, "data");
   const { data: hospitalData } = useAllHospitalData();
-
+  const navigate = useNavigate();
+  const { setSearchView } = useViewStore((state) => state.view);
   return (
     <Box
       sx={{
@@ -67,6 +75,7 @@ export const FetchProducts = ({
               const hospitalObj = hospitalData?.data?.hospitals?.find(
                 (hospital) => hospital.id === item.hospital_id,
               );
+              const navigateString = `doctor/dr-${item.firstName}-${item.lastName}/${item.id}`;
               return (
                 <Paper
                   key={item.id}
@@ -74,6 +83,11 @@ export const FetchProducts = ({
                     textAlign: "left",
                     cursor: "pointer",
                     padding: "8px 16px",
+                  }}
+                  onClick={() => {
+                    setSearchView(false);
+                    navigate(navigateString);
+                    resetInput();
                   }}
                 >
                   <Stack
@@ -112,10 +126,12 @@ export const FetchProducts = ({
                           Dr. {item.firstName} {item.lastName}
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
-                          {item?.specialization?.toLocaleLowerCase() ||
-                            "General Physician"}
+                          {`${item?.experience?.toString().replace(/\.00$/, "")} years,${" "} 
+                          ${
+                            item?.specialization?.toLocaleLowerCase() ||
+                            "General Physician"
+                          }`}
                         </Typography>
-
                         <Typography variant="caption" color="text.secondary">
                           {hospitalObj?.name}
                         </Typography>

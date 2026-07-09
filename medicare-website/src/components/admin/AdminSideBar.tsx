@@ -9,6 +9,11 @@ import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
 import { useLocation, useNavigate } from "react-router";
 import logo from "../../assets/medicare_icon.png";
 import theme from "../../theme";
+import { apiClientWithAuth } from "../../api/client";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import useAuthStore from "../../store";
+import { LOGOUT_USER } from "../../api/apiRoutes";
+import { Button } from "../button/Button";
 
 const sidebarContent = [
   {
@@ -45,6 +50,26 @@ const sidebarContent = [
 export const AdminSideBar = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { userInfo, clearUserInfo } = useAuthStore((state) => state.login);
+  const user = userInfo?.user;
+  const { mutate: logout } = useMutation({
+    mutationKey: ["logout"],
+    mutationFn: async () => {
+      const response = await apiClientWithAuth.post(LOGOUT_USER, {
+        userId: user.id,
+      });
+      return response.data;
+    },
+    onSuccess: () => {
+      alert("Logout successful!");
+      clearUserInfo();
+      queryClient.clear();
+    },
+    onError: (error) => {
+      alert(`Logout failed! Please try again later. ${error.message}`);
+    },
+  });
   return (
     <Box
       sx={{
@@ -114,8 +139,14 @@ export const AdminSideBar = () => {
           },
         }}
       >
-        <PowerSettingsNewIcon />
-        <Typography>Logout</Typography>
+        <Button
+          startIcon={<PowerSettingsNewIcon color="secondary" />}
+          onClick={logout}
+          variant="text"
+          color="secondary"
+        >
+          <Typography>Logout</Typography>
+        </Button>
       </Box>
     </Box>
   );
