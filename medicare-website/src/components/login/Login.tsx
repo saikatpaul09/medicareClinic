@@ -1,24 +1,34 @@
-import { Box, Divider, Typography } from "@mui/material";
+import { useState } from "react";
+import Box from "@mui/material/Box";
+import Divider from "@mui/material/Divider";
+import Typography from "@mui/material/Typography";
 import { useMutation } from "@tanstack/react-query";
 import { TextField } from "../text-field/TextField";
 import { Button } from "../button/Button";
 import theme from "../../theme";
-import useBoundStore from "../../store";
+import useAuthStore from "../../store";
 import { roles } from "../../constants";
 import { type SideBarRole } from "../../types";
-import { apiClient } from "../../api/client";
-import { LOGIN_USER } from "../../api/mutations";
-import { useState } from "react";
+import { apiClientWithAuth } from "../../api/client";
+import { LOGIN_USER } from "../../api/apiRoutes";
+import { EMAIL_REGEX } from "../../constants";
+import { useNavigate, useLocation } from "react-router";
 export const Login = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || "/dashboard";
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
-  const { login, closePopup } = useBoundStore((state) => state.login);
+  const [error, setError] = useState("");
+  const { setUserInfo, setRole, closePopup } = useAuthStore(
+    (state) => state.login,
+  );
   const { mutate: loginUser, isPending } = useMutation({
     mutationKey: ["login"],
     mutationFn: async () => {
-      const response = await apiClient.post(LOGIN_USER, {
+      const response = await apiClientWithAuth.post(LOGIN_USER, {
         email: formData.email,
         password: formData.password,
       });
@@ -26,7 +36,12 @@ export const Login = () => {
     },
     onSuccess: (data) => {
       alert("Login successful! Welcome back.");
-      login(data.data);
+      const role = data.data.user.role;
+      if (role === "ADMIN") {
+        navigate(from, { replace: true });
+      }
+      setRole(role);
+      setUserInfo(data.data);
       closePopup();
     },
     onError: (error) => {
@@ -36,17 +51,30 @@ export const Login = () => {
     },
   });
 
-  const openPopup = useBoundStore((state) => state.login.openPopup);
-  const btnDisabled = Object.values(formData).some((field) => !field);
+  const openPopup = useAuthStore((state) => state.login.openPopup);
+  const btnDisabled =
+    Object.values(formData).some((field) => !field) && !!error;
   return (
     <Box sx={{ margin: 3 }}>
       <TextField
-        label="Email"
+        label={error ? "Please enter proper email Id" : "Email"}
         required
         variant="outlined"
         fullWidth
         margin="normal"
+        error={!!error}
         value={formData.email}
+        onBlur={() => {
+          // Trim whitespace to handle accidental trailing spaces
+          const trimmedEmail = formData.email.trim();
+          if (!trimmedEmail) {
+            setError("Email address is required.");
+          } else if (!EMAIL_REGEX.test(trimmedEmail)) {
+            setError("Please enter a valid email address.");
+          } else {
+            setError(""); // Clear error if validation passes
+          }
+        }}
         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
       />
       <TextField

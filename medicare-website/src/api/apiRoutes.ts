@@ -1,0 +1,14 @@
+export const REGISTER_USER = `/register`;
+export const LOGIN_USER = `/login`;
+export const LOGOUT_USER = `/logout`;
+export const REFRESH_TOKEN = `/refresh-token`;
+export const PROFILE_API_ROUTE = "/profile";
+export const PATIENTS_API_ROUTE = "/patients";
+export const PATIENT_API_ROUTE = "/patient";
+export const DOCTORS_API_ROUTE = "/doctors";
+export const DASHBOARD_OVERVIEW = "/overview";
+export const DOCTOR_API_SLOT_ROUTE = "/doctor-slots";
+export const DOCTOR_API_ROUTE = "/doctor";
+export const ADMIN_GET_DOCTORS_LIST = "/doctors-list";
+export const HOSPITALS_API_ROUTE = "/hospitals";
+export const HOSPITAL_API_ROUTE = "/hospital";

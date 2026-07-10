@@ -1,25 +1,29 @@
-import { Box, Typography } from "@mui/material";
+import { useState } from "react";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
 import theme from "../../theme";
 import FamilyRestroomRoundedIcon from "@mui/icons-material/FamilyRestroomRounded";
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import AudioFileRoundedIcon from "@mui/icons-material/AudioFileRounded";
 import EventAvailableRoundedIcon from "@mui/icons-material/EventAvailableRounded";
 import { useMutation } from "@tanstack/react-query";
-import { apiClient } from "../../api/client";
-import { LOGOUT_USER } from "../../api/mutations";
-import useBoundStore from "../../store";
+import { apiClientWithAuth } from "../../api/client";
+import { LOGOUT_USER } from "../../api/apiRoutes";
+import useAuthStore from "../../store";
+import { EditProfile } from "./EditProfile";
+import { shortNameHelper } from "../../utils/helpers";
 export const MyAccount = () => {
-  const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
-  const closePopup = useBoundStore((state) => state.login.closePopup);
-  const shortName = userInfo?.name
-    ?.split(" ")
-    .map((name: string) => name[0])
-    .join("");
-
+  const { userInfo, clearUserInfo } = useAuthStore((state) => state.login);
+  const [openPopup, setOpenPopup] = useState(false);
+  const closePopup = useAuthStore((state) => state.login.closePopup);
+  const user = userInfo?.user;
+  const name = shortNameHelper(user?.firstName, user?.lastName);
   const { mutate: logout } = useMutation({
     mutationKey: ["logout"],
     mutationFn: async () => {
-      const response = await apiClient.post(LOGOUT_USER);
+      const response = await apiClientWithAuth.post(LOGOUT_USER, {
+        userId: user.id,
+      });
       return response.data;
     },
     onSuccess: () => {
@@ -32,25 +36,36 @@ export const MyAccount = () => {
 
   const onLogoutHandler = () => {
     logout();
-    localStorage.removeItem("userInfo");
+    clearUserInfo();
     closePopup();
+  };
+
+  const editMyProfileHandler = () => {
+    setOpenPopup(true);
   };
 
   const options = [
     {
-      id: "my-family",
-      label: "My Family",
+      id: "my-account",
+      label: "My Profile",
       icon: <FamilyRestroomRoundedIcon />,
+      onClick: editMyProfileHandler,
     },
     {
       id: "my-appointments",
       label: "My Appointments",
       icon: <EventAvailableRoundedIcon />,
+      onClick: () => {
+        closePopup();
+      },
     },
     {
       id: "health-records",
       label: "Health Records",
       icon: <AudioFileRoundedIcon />,
+      onClick: () => {
+        closePopup();
+      },
     },
     {
       id: "logout",
@@ -61,62 +76,69 @@ export const MyAccount = () => {
   ];
 
   return (
-    <Box sx={{ padding: theme.spacing(2) }}>
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          gap: "8px",
-          background: "#f6f6f6",
-          padding: theme.spacing(2),
-          borderRadius: theme.shape.borderRadius,
-        }}
-      >
+    <>
+      <Box sx={{ padding: theme.spacing(2) }}>
         <Box
           sx={{
             display: "flex",
             alignItems: "center",
-            justifyContent: "center",
-            borderRadius: "50%",
-            width: "40px",
-            height: "40px",
-            backgroundColor: theme.palette.primary.main,
-            color: theme.palette.primary.contrastText,
-            fontWeight: "bold",
+            gap: "8px",
+            background: "#f6f6f6",
+            padding: theme.spacing(2),
+            borderRadius: theme.shape.borderRadius,
           }}
         >
-          {shortName}
-        </Box>
-        <Box>
-          <Typography variant="h6">{userInfo?.name}</Typography>
-          <Typography variant="body2" color="text.secondary">
-            {userInfo?.email}
-          </Typography>
-        </Box>
-      </Box>
-      <Box sx={{ marginTop: theme.spacing(3) }}>
-        {options.map((option) => (
           <Box
-            key={option.id}
             sx={{
               display: "flex",
               alignItems: "center",
-              padding: theme.spacing(2),
-              borderBottom: `1px solid ${theme.palette.divider}`,
-              cursor: "pointer",
-              "&:last-child": {
-                borderBottom: "none",
-              },
+              justifyContent: "center",
+              borderRadius: "50%",
+              width: "40px",
+              height: "40px",
+              backgroundColor: theme.palette.primary.main,
+              color: theme.palette.primary.contrastText,
+              fontWeight: "bold",
             }}
-            onClick={option.onClick}
           >
-            {option.icon}
-            <Typography variant="body1" sx={{ marginLeft: theme.spacing(1) }}>
-              {option.label}
+            {name}
+          </Box>
+          <Box>
+            <Typography variant="h6">
+              {user?.firstName} {user?.lastName}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {user?.email}
             </Typography>
           </Box>
-        ))}
+        </Box>
+        <Box sx={{ marginTop: theme.spacing(3) }}>
+          {options.map((option) => (
+            <Box
+              key={option.id}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                padding: theme.spacing(2),
+                borderBottom: `1px solid ${theme.palette.divider}`,
+                cursor: "pointer",
+                "&:last-child": {
+                  borderBottom: "none",
+                },
+              }}
+              onClick={option.onClick}
+            >
+              {option.icon}
+              <Typography variant="body1" sx={{ marginLeft: theme.spacing(1) }}>
+                {option.label}
+              </Typography>
+            </Box>
+          ))}
+        </Box>
       </Box>
-    </Box>
+      {openPopup && (
+        <EditProfile open={openPopup} handleClose={() => setOpenPopup(false)} />
+      )}
+    </>
   );
 };

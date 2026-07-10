@@ -1,15 +1,25 @@
 import jwt from "jsonwebtoken";
+import crypto from "crypto";
 
-const generateToken = (res, userId) => {
-  const token = jwt.sign({ userId: userId }, process.env.JWT_SECRET, {
-    expiresIn: "30d",
-  });
-  res.cookie("token", token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
-    maxAge: 60 * 1000, //30 days
-  });
+const generateToken = (user) => {
+  const token = jwt.sign(
+    { userId: user.id, role: user.role },
+    process.env.JWT_SECRET,
+    {
+      expiresIn: process.env.JWT_SECRET_EXPIRY,
+    },
+  );
+  return token;
 };
 
-export default generateToken;
+const generateRefreshToken = (user) => {
+  const rawRefreshToken = crypto.randomBytes(40).toString("hex");
+  const tokenHash = crypto
+    .createHash("sha256")
+    .update(rawRefreshToken)
+    .digest("hex");
+
+  return { rawRefreshToken, tokenHash };
+};
+
+export { generateToken, generateRefreshToken };
