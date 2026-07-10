@@ -15,7 +15,7 @@ import { SideBar } from "./SideBar";
 import { roles } from "../constants";
 import type { SideBarRole } from "../types";
 import useViewStore from "../store/useViewStore";
-import { Outlet } from "react-router";
+import { Outlet, useNavigate } from "react-router";
 
 export const Header = () => {
   const sideBarRole = useAuthStore((state) => state.login.sideBarRole);
@@ -23,7 +23,7 @@ export const Header = () => {
   const userInfo = useAuthStore((state) => state.login.userInfo);
   const isSearchView = useViewStore((state) => state.view.isSearchView);
   const role = useAuthStore((state) => state.login.role);
-
+  const navigate = useNavigate();
   return (
     <>
       <header
@@ -46,7 +46,13 @@ export const Header = () => {
         >
           <Grid container>
             <Grid size={{ sm: 1 }}>
-              <img src={logo} width={90} height={90} alt="Medicare Logo" />
+              <img
+                src={logo}
+                width={90}
+                height={90}
+                alt="Medicare Logo"
+                onClick={() => navigate("/")}
+              />
             </Grid>
             <Grid size={{ xs: 2.5, sm: 2.5 }} sx={{ marginTop: "20px" }}>
               {/* <FormControl

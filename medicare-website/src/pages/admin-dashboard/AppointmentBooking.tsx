@@ -233,6 +233,9 @@ export const DoctorBookAppointmentPage = () => {
   const hospitalName = hospitalData?.data?.hospitals?.find(
     (hospital) => hospital?.id === doctor?.hospital_id,
   );
+  const specialization =
+    doctor?.specialization.charAt(0).toUpperCase() +
+    doctor?.specialization.slice(1).toLowerCase();
   return (
     <Box sx={{ maxWidth: 1200, mx: "auto", p: { xs: 2, md: 3 } }}>
       <Breadcrumbs sx={{ mb: 2 }}>
@@ -243,8 +246,7 @@ export const DoctorBookAppointmentPage = () => {
           Doctors
         </Link>
         <Link underline="hover" color="inherit" href="#">
-          {doctor?.specialization.charAt(0).toUpperCase() +
-            doctor?.specialization.slice(1).toLowerCase()}
+          {specialization}
         </Link>
         <Typography color="text.primary"></Typography>
       </Breadcrumbs>
@@ -275,7 +277,7 @@ export const DoctorBookAppointmentPage = () => {
                         {fullName}
                       </Typography>
                       <Typography color="primary" sx={{ fontWeight: 600 }}>
-                        {doctor?.specialization}
+                        {specialization}
                       </Typography>
                       <Typography color="text.secondary" sx={{ mb: 1 }}>
                         {doctor?.experience?.toString().replace(/\.00$/, "")}+

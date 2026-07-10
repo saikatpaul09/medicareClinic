@@ -5,17 +5,25 @@ import { Button } from "../button/Button";
 import theme from "../../theme";
 import { Section } from "../Section";
 import { getHospitalOptions, specialties } from "../../constants";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+// import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+// import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+// import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { useAllHospitalData } from "../../hooks/useAllHospitalData";
+import { useState } from "react";
+import { useNavigate } from "react-router";
 
 export const SearchBySpeciality = () => {
   const { data: hospitalData } = useAllHospitalData();
   const hospitalOptions = getHospitalOptions({
     hospitals: hospitalData?.data?.hospitals,
   });
-
+  const [searchState, setSearchState] = useState({
+    specialization: "",
+    hospital_id: "",
+  });
+  const navigate = useNavigate();
+  const disabled = !searchState.hospital_id || !searchState.hospital_id;
+  const navigateUrl = `/doctors?specialization=${searchState.specialization}&hospital_id=${searchState.hospital_id}`;
   return (
     <Box
       sx={{
@@ -50,9 +58,19 @@ export const SearchBySpeciality = () => {
         >
           <Autocomplete
             options={specialties}
-            multiple
+            value={
+              specialties.filter(
+                (item) => item.value === searchState.specialization,
+              )[0]
+            }
             sx={{ minWidth: "250px" }}
             getOptionLabel={(option) => option.name}
+            onChange={(_, value) => {
+              setSearchState({
+                ...searchState,
+                specialization: value.value,
+              });
+            }}
             renderInput={(params) => (
               <TextField
                 {...params}
@@ -61,12 +79,22 @@ export const SearchBySpeciality = () => {
               />
             )}
           />
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
+          {/* <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DatePicker label="Appointment Date" />
-          </LocalizationProvider>
+          </LocalizationProvider> */}
           <Autocomplete
             options={hospitalOptions}
-            multiple
+            value={
+              hospitalOptions.filter(
+                (hospital) => hospital.value === searchState.hospital_id,
+              )[0]
+            }
+            onChange={(_, value) =>
+              setSearchState({
+                ...searchState,
+                hospital_id: value.value,
+              })
+            }
             sx={{ minWidth: "250px" }}
             getOptionLabel={(option) => option?.name}
             renderInput={(params) => (
@@ -81,7 +109,12 @@ export const SearchBySpeciality = () => {
               />
             )}
           />
-          <Button variant="contained" sx={{ height: "56px", width: "150px" }}>
+          <Button
+            disabled={disabled}
+            variant="contained"
+            sx={{ height: "56px", width: "150px" }}
+            onClick={() => navigate(navigateUrl)}
+          >
             Search
           </Button>
         </Box>
