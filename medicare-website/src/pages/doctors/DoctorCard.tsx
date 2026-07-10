@@ -4,9 +4,9 @@ import Button from "@mui/material/Button";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
-
 import { type Doctor } from "./types";
 import { useAllHospitalData } from "../../hooks/useAllHospitalData";
+import { useNavigate } from "react-router";
 
 interface DoctorCardProps {
   doctor: Doctor;
@@ -21,7 +21,8 @@ export default function DoctorCard({ doctor }: DoctorCardProps) {
   const hospitalName = hospitalData?.data?.hospitals?.find(
     (hospital) => hospital.id === doctor.hospital_id,
   );
-
+  const navigate = useNavigate();
+  const navigateString = `/doctor/dr-${doctor.firstName}-${doctor.lastName}/${doctor.id}`;
   return (
     <Paper
       elevation={0}
@@ -33,6 +34,7 @@ export default function DoctorCard({ doctor }: DoctorCardProps) {
         maxWidth: "750px",
         cursor: "pointer",
       }}
+      onClick={() => navigate(navigateString)}
     >
       <Stack
         direction={{
@@ -43,7 +45,7 @@ export default function DoctorCard({ doctor }: DoctorCardProps) {
       >
         <Stack direction="row" spacing={2}>
           <Avatar
-            src={doctor.profile_picture}
+            src={doctor?.profile_picture}
             sx={{
               width: 90,
               height: 90,
@@ -52,7 +54,7 @@ export default function DoctorCard({ doctor }: DoctorCardProps) {
 
           <Box>
             <Typography variant="h6" sx={{ fontWeight: 700 }}>
-              Dr. {doctor.firstName} {doctor.lastName}
+              Dr. {doctor?.firstName} {doctor?.lastName}
             </Typography>
 
             <Typography color="primary" sx={{ fontWeight: 600 }}>
@@ -60,7 +62,7 @@ export default function DoctorCard({ doctor }: DoctorCardProps) {
             </Typography>
 
             <Typography variant="body2">
-              +{doctor.experience.toString().replace(/\.00$/, "")} Years
+              +{doctor?.experience.toString().replace(/\.00$/, "")} Years
             </Typography>
 
             <Typography variant="body2" color="text.secondary">
@@ -71,7 +73,7 @@ export default function DoctorCard({ doctor }: DoctorCardProps) {
 
         <Stack spacing={2} sx={{ alignItems: "flex-start" }}>
           <Typography variant="h6" sx={{ fontWeight: 700 }}>
-            ₹{doctor.consultation_fee}
+            ₹{doctor?.consultation_fee}
           </Typography>
 
           <Button variant="contained">Book Appointment</Button>

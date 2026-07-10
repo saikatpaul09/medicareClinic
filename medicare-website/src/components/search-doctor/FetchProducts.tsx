@@ -74,7 +74,7 @@ export const FetchProducts = ({
               const hospitalObj = hospitalData?.data?.hospitals?.find(
                 (hospital) => hospital.id === item.hospital_id,
               );
-              const navigateString = `doctor/dr-${item.firstName}-${item.lastName}/${item.id}`;
+              const navigateString = `/doctor/dr-${item.firstName}-${item.lastName}/${item.id}`;
               return (
                 <Paper
                   key={item.id}
