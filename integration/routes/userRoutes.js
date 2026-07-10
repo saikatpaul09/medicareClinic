@@ -10,6 +10,7 @@ import {
   refreshTokenController,
   fetchPatientDetailsController,
   updatePatientDetailsController,
+  fetchFilteredDoctorsController,
 } from "../controllers/userController.js";
 import {
   createDoctorController,
@@ -143,4 +144,5 @@ router.put(
   updateDoctorSchedulesController,
 );
 router.get("/doctor/:doctorId", fetchDoctorByIdController);
+router.get("/doctors", fetchFilteredDoctorsController);
 export default router;

@@ -8,7 +8,8 @@ import { AffiliatedHospitals } from "./pages/admin-dashboard/AffiliatedHospitals
 import { DashboardOverview } from "./pages/admin-dashboard/OverView";
 import { DoctorSLots } from "./pages/admin-dashboard/DoctorSlots";
 import { DoctorScheduleManager } from "./pages/admin-dashboard/DoctorScheduleManager";
-import { DoctorBookAppointmentPage } from "./pages/appointment";
+import { DoctorBookAppointmentPage } from "./pages/admin-dashboard/AppointmentBooking";
+import { DoctorsListPage } from "./pages/doctors/DoctorsListPage";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +29,11 @@ const App = () => {
                 index={true}
                 path="/doctor/:doctorName/:doctorId"
                 element={<DoctorBookAppointmentPage />}
+              />
+              <Route
+                index={true}
+                path="/doctors"
+                element={<DoctorsListPage />}
               />
             </Route>
             <Route element={<ProtectedRoute allowedRoles={["ADMIN"]} />}>

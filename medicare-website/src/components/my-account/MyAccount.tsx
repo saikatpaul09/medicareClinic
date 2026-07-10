@@ -55,11 +55,17 @@ export const MyAccount = () => {
       id: "my-appointments",
       label: "My Appointments",
       icon: <EventAvailableRoundedIcon />,
+      onClick: () => {
+        closePopup();
+      },
     },
     {
       id: "health-records",
       label: "Health Records",
       icon: <AudioFileRoundedIcon />,
+      onClick: () => {
+        closePopup();
+      },
     },
     {
       id: "logout",

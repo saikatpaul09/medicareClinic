@@ -26,7 +26,6 @@ export const FetchProducts = ({
   }[];
   resetInput: () => void;
 }) => {
-  console.log(data, "data");
   const { data: hospitalData } = useAllHospitalData();
   const navigate = useNavigate();
   const { setSearchView } = useViewStore((state) => state.view);
@@ -47,7 +46,7 @@ export const FetchProducts = ({
         sx={{
           overflow: "auto",
           width: "550px",
-          maxHeight: "580px",
+          maxHeight: "380px",
           overflowY: "auto",
           scrollbarWidth: "none",
           scrollbarGutter: "stable",

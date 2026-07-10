@@ -23,6 +23,9 @@ import ThumbDownOffAltIcon from "@mui/icons-material/ThumbDownOffAlt";
 import { apiClient } from "../../api/client";
 import { DOCTOR_API_ROUTE, DOCTOR_API_SLOT_ROUTE } from "../../api/apiRoutes";
 import { useAllHospitalData } from "../../hooks/useAllHospitalData";
+import useAuthStore from "../../store";
+import { roles } from "../../constants";
+import type { SideBarRole } from "../../types";
 
 // ---------- Types ----------
 interface DoctorData {
@@ -133,7 +136,9 @@ const fetchDoctorSchedules = async (
 
 export const DoctorBookAppointmentPage = () => {
   const { doctorId } = useParams();
-
+  const userInfo = useAuthStore((state) => state.login.userInfo);
+  const openPopup = useAuthStore((state) => state.login.openPopup);
+  const role = useAuthStore((state) => state.login.role);
   const [visibleStartIndex, setVisibleStartIndex] = useState(0);
   const [selectedDateIndex, setSelectedDateIndex] = useState(0);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
@@ -212,13 +217,17 @@ export const DoctorBookAppointmentPage = () => {
   };
 
   const handleScheduleAppointment = () => {
-    if (!selectedDay || !selectedTime) return;
-    // TODO: wire up booking mutation
-    console.log("Booking", {
-      doctorId,
-      date: selectedDay.date,
-      time: selectedTime,
-    });
+    if (userInfo && role === "PATIENT") {
+      if (!selectedDay || !selectedTime) return;
+      // TODO: wire up booking mutation
+      console.log("Booking", {
+        doctorId,
+        date: selectedDay.date,
+        time: selectedTime,
+      });
+    } else {
+      openPopup(roles.LOGIN as SideBarRole);
+    }
   };
   const fullName = doctor ? `Dr. ${doctor.firstName} ${doctor.lastName}` : "";
   const hospitalName = hospitalData?.data?.hospitals?.find(

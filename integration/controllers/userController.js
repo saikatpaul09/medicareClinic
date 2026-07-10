@@ -8,6 +8,7 @@ import {
   refreshTokenService,
   getPatientDataService,
   updatePatientProfileDetails,
+  getFilteredDoctorsListService,
 } from "../models/userModel.js";
 import { generateToken, generateRefreshToken } from "../utils/generateToken.js";
 import { handleResponse } from "../utils/helpers.js";
@@ -205,6 +206,49 @@ export const updatePatientDetailsController = asyncHandler(async (req, res) => {
           phone: result.phone,
           date_of_birth: result.date_of_birth,
         },
+      });
+    }
+  } catch (error) {
+    handleResponse(res, 500, error.message);
+  }
+});
+
+export const fetchFilteredDoctorsController = asyncHandler(async (req, res) => {
+  const role = req?.user?.role;
+  const {
+    specialization,
+    hospital_id,
+    gender,
+    consultation_fee,
+    experience,
+    nextCursor,
+  } = req.query || {};
+  const filters = {
+    specialization,
+    hospital_id,
+    gender,
+    consultation_fee,
+    experience,
+  };
+
+  try {
+    const doctorsListObj = await getFilteredDoctorsListService({
+      filters,
+      nextCursor,
+    });
+    if (!doctorsListObj || doctorsListObj.data.length === 0) {
+      return handleResponse(res, 200, "doctor list fetched", {
+        doctors: [],
+        hasMore: false,
+        nextCursor: null,
+      });
+    }
+    if (doctorsListObj.data.length > 0) {
+      return handleResponse(res, 200, "doctor list fetched", {
+        doctors: doctorsListObj.data,
+        hasMore: doctorsListObj.hasMore,
+        nextCursor: doctorsListObj.nextCursor,
+        totalCount: doctorsListObj.totalCount,
       });
     }
   } catch (error) {

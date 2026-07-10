@@ -133,3 +133,133 @@ export const updatePatientProfileDetails = async (userId, updateFields) => {
   }
   return result.rows[0];
 };
+
+export const getFilteredDoctorsListService = async ({
+  filters = {},
+  nextCursor,
+}) => {
+  const queryValues = ["DOCTOR"];
+  const countValues = ["DOCTOR"];
+  let whereClauses = ["u.role = $1"];
+  let countClauses = ["u.role = $1"];
+  // Filters sourced directly from the URL query string
+  const { specialization, hospital_id, gender, consultation_fee, experience } =
+    filters;
+  let safeLimit = 20;
+  if (specialization) {
+    queryValues.push(specialization);
+    countValues.push(specialization);
+    countClauses.push(`ui.specialization = $${countValues.length}`);
+    whereClauses.push(`ui.specialization = $${queryValues.length}`);
+  }
+
+  if (hospital_id) {
+    queryValues.push(hospital_id);
+    countValues.push(hospital_id);
+    countClauses.push(`ui.hospital_id = $${countValues.length}`);
+    whereClauses.push(`ui.hospital_id = $${queryValues.length}`);
+  }
+
+  if (gender) {
+    queryValues.push(gender);
+    countValues.push(gender);
+    countClauses.push(`u.gender = $${countValues.length}`);
+    whereClauses.push(`u.gender = $${queryValues.length}`);
+  }
+
+  if (consultation_fee) {
+    const [min, max] = filters.consultation_fee.split("-").map(Number);
+    const feeMin = parseFloat(min);
+    const feeMax = parseFloat(max);
+
+    if (min !== undefined && min !== "" && !isNaN(feeMin)) {
+      queryValues.push(feeMin);
+      countValues.push(feeMin);
+      countClauses.push(`ui.consultation_fee >= $${countValues.length}`);
+      whereClauses.push(`ui.consultation_fee >= $${queryValues.length}`);
+    }
+
+    if (max !== undefined && max !== "" && !isNaN(feeMax)) {
+      queryValues.push(feeMax);
+      countValues.push(feeMax);
+      countClauses.push(`ui.consultation_fee <= $${countValues.length}`);
+      whereClauses.push(`ui.consultation_fee <= $${queryValues.length}`);
+    }
+  }
+
+  if (experience !== undefined && experience !== "") {
+    const exp = parseInt(experience, 10);
+    if (!isNaN(exp)) {
+      queryValues.push(exp);
+      countValues.push(exp);
+      countClauses.push(`ui.experience >= $${countValues.length}`);
+      whereClauses.push(`ui.experience >= $${queryValues.length}`);
+    }
+  }
+
+  // 2. Keyset Pagination (Cursor Logic)
+  if (nextCursor) {
+    const decoded = Buffer.from(nextCursor, "base64").toString("utf8");
+    const decodedParse = JSON.parse(decoded);
+    queryValues.push(decodedParse.createdAtLocal, decodedParse.id);
+    // Secure row values comparison logic
+    whereClauses.push(
+      `(u."createdAt", u.id) < ($${queryValues.length - 1}::timestamptz, $${queryValues.length}::uuid)`,
+    );
+  }
+
+  // Construct WHERE clause
+  const whereSql =
+    whereClauses.length > 0 ? `WHERE ${whereClauses.join(" AND ")}` : "";
+  const countSql =
+    countClauses.length > 0 ? `WHERE ${countClauses.join(" AND ")}` : "";
+
+  // Append Limit (+1 to fetch next token window)
+  queryValues.push(safeLimit + 1);
+  const limitIndex = queryValues.length;
+
+  const query = `
+    SELECT 
+      u.id, 
+      u."firstName", 
+      u."lastName", 
+      u.gender,
+      u."createdAt",
+      ui.hospital_id,
+      ui.specialization,
+      ui.consultation_fee,
+      ui.experience,
+      ui.thumbs_up,
+      ui.institution_name,
+      ui.description,
+      ui.degree_name
+    FROM "users" u 
+    inner JOIN doctors ui ON u.id = ui.user_id ${whereSql} ORDER BY u."createdAt" DESC, u.id DESC
+    LIMIT $${limitIndex};
+  `;
+  const countQuery = `
+    SELECT COUNT(*) AS total
+    FROM "users" u 
+    inner JOIN doctors ui ON u.id = ui.user_id ${countSql}
+  `;
+  const result = await pool.query(query, queryValues);
+  const countResult = await pool.query(countQuery, countValues);
+  const { rows } = result;
+  const hasMore = rows.length > safeLimit;
+  let newCursor = null;
+  if (hasMore && rows.length > 0) {
+    rows.pop();
+    const lastVisible = rows[rows.length - 1];
+    const { createdAt, id } = lastVisible;
+    const createdAtLocal = createdAt.toISOString();
+    const payload = JSON.stringify({ createdAtLocal, id });
+    newCursor = Buffer.from(payload).toString("base64");
+  }
+  const data = rows.map(({ createdAt, ...rest }) => rest);
+  return {
+    data,
+    hasMore, // Boolean flag for frontend UI state management
+    nextCursor: newCursor,
+    totalCount: countResult.rows[0].total,
+  };
+};

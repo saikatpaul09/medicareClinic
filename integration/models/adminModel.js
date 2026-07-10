@@ -4,7 +4,7 @@ import bcrypt from "bcrypt";
 const MAX_LIMIT = 100;
 export const getAllDoctorsListService = async ({
   filters = {},
-  limit = 10,
+  limit = 30,
   nextCursor,
   role,
 }) => {

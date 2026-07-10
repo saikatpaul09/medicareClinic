@@ -13,7 +13,7 @@ import { EMAIL_REGEX } from "../../constants";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import FormGroup from "@mui/material/FormGroup";
 import Typography from "@mui/material/Typography";
-import { PATIENT_API_ROUTE } from "../../api/apiRoutes";
+import { PATIENT_API_ROUTE, PROFILE_API_ROUTE } from "../../api/apiRoutes";
 import { apiClientWithAuth } from "../../api/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader } from "../Loader";
@@ -41,7 +41,7 @@ export const EditProfile = ({
   const userId = userInfo.user.id;
   const getPatientProfileDetails = async () => {
     try {
-      const result = await apiClientWithAuth.get(PATIENT_API_ROUTE);
+      const result = await apiClientWithAuth.get(PROFILE_API_ROUTE);
       if (result) {
         return result.data.data.user;
       }

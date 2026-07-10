@@ -26,9 +26,7 @@ export const DashboardOverview = () => {
     staleTime: 1000 * 60 * 5, // 5 minutes
     refetchOnWindowFocus: false,
   });
-  console.log(
-    `linear-gradient(135deg, ${theme.palette.secondary} 0%, ${theme.palette.secondary} 50%, ${theme.palette.secondary} 100%)`,
-  );
+
   const cards = [
     {
       title: "Doctors",

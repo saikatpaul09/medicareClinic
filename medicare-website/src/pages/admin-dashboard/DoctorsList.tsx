@@ -30,7 +30,7 @@ import { useAllHospitalData } from "../../hooks/useAllHospitalData";
 export const DoctorsList = () => {
   const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
     page: 0,
-    pageSize: 7,
+    pageSize: 30,
   });
   const [mode, setMode] = useState(null);
   const [doctorData, setDoctorData] = useState(null);

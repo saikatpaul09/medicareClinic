@@ -32,6 +32,45 @@ export const specialties = [
   { name: "Orthopedics", value: "ORTHOPEDICS", icon: LocalPharmacyIcon },
   { name: "General Practice", value: "GENERAL_PRACTICE", icon: BloodtypeIcon },
 ];
+
+export const consultaionFees = [
+  { label: "500-1000", min: 500, max: 1000 },
+  {
+    label: "1000-1500",
+    min: 100,
+    max: 1500,
+  },
+  { label: "+1500", min: 1500 },
+];
+export const experienceOptions = [
+  {
+    label: +5,
+    value: 5,
+  },
+  {
+    label: +10,
+    value: 10,
+  },
+  {
+    label: +15,
+    value: 15,
+  },
+];
+
+export const genderOptions = [
+  {
+    label: "Male",
+    value: "Male",
+  },
+  {
+    label: "Female",
+    value: "Female",
+  },
+  {
+    label: "Others",
+    value: "Others",
+  },
+];
 export const getHospitalOptions = ({
   hospitals,
 }: {
