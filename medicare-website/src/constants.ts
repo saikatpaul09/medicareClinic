@@ -60,15 +60,15 @@ export const experienceOptions = [
 export const genderOptions = [
   {
     label: "Male",
-    value: "Male",
+    value: "MALE",
   },
   {
     label: "Female",
-    value: "Female",
+    value: "FEMALE",
   },
   {
     label: "Others",
-    value: "Others",
+    value: "OTHERS",
   },
 ];
 export const getHospitalOptions = ({

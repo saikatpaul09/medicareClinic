@@ -25,6 +25,7 @@ import { DOCTOR_API_ROUTE, DOCTOR_API_SLOT_ROUTE } from "../../api/apiRoutes";
 import { useAllHospitalData } from "../../hooks/useAllHospitalData";
 import useAuthStore from "../../store";
 import { roles } from "../../constants";
+import { useNavigate } from "react-router";
 import type { SideBarRole } from "../../types";
 
 // ---------- Types ----------
@@ -143,7 +144,7 @@ export const DoctorBookAppointmentPage = () => {
   const [selectedDateIndex, setSelectedDateIndex] = useState(0);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const { data: hospitalData } = useAllHospitalData();
-
+  const navigate = useNavigate();
   const { data: doctor, isLoading: isDoctorLoading } = useQuery({
     queryKey: ["doctorsById", doctorId],
     queryFn: () => fetchDoctorById(doctorId),
@@ -219,11 +220,17 @@ export const DoctorBookAppointmentPage = () => {
   const handleScheduleAppointment = () => {
     if (userInfo && role === "PATIENT") {
       if (!selectedDay || !selectedTime) return;
-      // TODO: wire up booking mutation
-      console.log("Booking", {
-        doctorId,
-        date: selectedDay.date,
-        time: selectedTime,
+      navigate("/book/payment", {
+        state: {
+          doctorId,
+          doctorName: fullName,
+          specialization,
+          hospitalName: hospitalName?.name,
+          appointmentDate: selectedDay.date,
+          appointmentTime: selectedTime,
+          fee: doctor?.consultation_fee,
+          patientId: userInfo.user.id,
+        },
       });
     } else {
       openPopup(roles.LOGIN as SideBarRole);

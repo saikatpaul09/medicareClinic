@@ -8,8 +8,10 @@ import { AffiliatedHospitals } from "./pages/admin-dashboard/AffiliatedHospitals
 import { DashboardOverview } from "./pages/admin-dashboard/OverView";
 import { DoctorSLots } from "./pages/admin-dashboard/DoctorSlots";
 import { DoctorScheduleManager } from "./pages/admin-dashboard/DoctorScheduleManager";
-import { DoctorBookAppointmentPage } from "./pages/admin-dashboard/AppointmentBooking";
+import { DoctorBookAppointmentPage } from "./pages/appointment/AppointmentBooking";
 import { DoctorsListPage } from "./pages/doctors/DoctorsListPage";
+import { BookPaymentPage } from "./pages/appointment/BookPaymentPage";
+import { MyAppointmentsPage } from "./pages/appointment/MyAppointmentPage";
 
 const queryClient = new QueryClient();
 
@@ -35,6 +37,18 @@ const App = () => {
                 path="/doctors"
                 element={<DoctorsListPage />}
               />
+              <Route element={<ProtectedRoute allowedRoles={["PATIENT"]} />}>
+                <Route
+                  index={true}
+                  path="/book/payment"
+                  element={<BookPaymentPage />}
+                />
+                <Route
+                  index={true}
+                  path="/my-appointments"
+                  element={<MyAppointmentsPage />}
+                />
+              </Route>
             </Route>
             <Route element={<ProtectedRoute allowedRoles={["ADMIN"]} />}>
               <Route path="/dashboard" element={<AdminDashBoardLayout />}>
