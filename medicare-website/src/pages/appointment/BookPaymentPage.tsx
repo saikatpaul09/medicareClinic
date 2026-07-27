@@ -2,7 +2,6 @@ import { useMemo, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "react-router";
 import { apiClientWithAuth } from "../../api/client";
-// Adjust these to match your actual apiRoutes.ts entries
 import {
   GET_PAYMENT_INTENT_ID,
   CONFIRM_BOOKING_API_ROUTE,
