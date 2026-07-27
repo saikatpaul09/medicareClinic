@@ -12,12 +12,14 @@ import { LOGOUT_USER } from "../../api/apiRoutes";
 import useAuthStore from "../../store";
 import { EditProfile } from "./EditProfile";
 import { shortNameHelper } from "../../utils/helpers";
+import { useNavigate } from "react-router";
 export const MyAccount = () => {
   const { userInfo, clearUserInfo } = useAuthStore((state) => state.login);
   const [openPopup, setOpenPopup] = useState(false);
   const closePopup = useAuthStore((state) => state.login.closePopup);
   const user = userInfo?.user;
   const name = shortNameHelper(user?.firstName, user?.lastName);
+  const navigate = useNavigate();
   const { mutate: logout } = useMutation({
     mutationKey: ["logout"],
     mutationFn: async () => {
@@ -56,6 +58,7 @@ export const MyAccount = () => {
       label: "My Appointments",
       icon: <EventAvailableRoundedIcon />,
       onClick: () => {
+        navigate("/my-appointments");
         closePopup();
       },
     },

@@ -1,5 +1,4 @@
 import pool from "../config/db.js";
-
 export const createHospitalService = async ({
   name,
   address,

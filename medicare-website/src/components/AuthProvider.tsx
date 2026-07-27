@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import useAuthStore from "../store";
 import { apiClientWithAuth } from "../api/client";
-import { REFRESH_TOKEN } from "../api/mutations";
+import { REFRESH_TOKEN } from "../api/apiRoutes";
 import { Loader } from "./Loader";
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const { setUserInfo, clearUserInfo, setRole } = useAuthStore(

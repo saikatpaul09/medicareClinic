@@ -32,6 +32,11 @@ import {
   getAllHospitals,
   createHospitalController,
 } from "../controllers/hospitalControllers.js";
+import {
+  confirmBookingController,
+  getAppointmentByPatientIdDetailsController,
+} from "../controllers/bookingController.js";
+import { createPaymentIntentController } from "../controllers/paymentController.js";
 
 const router = express.Router();
 
@@ -143,6 +148,25 @@ router.put(
   authorizeRoles("ADMIN", "DOCTOR"),
   updateDoctorSchedulesController,
 );
+router.post(
+  "/confirm-booking",
+  authenticateJWT,
+  authorizeRoles("ADMIN", "DOCTOR", "PATIENT"),
+  confirmBookingController,
+);
+router.post(
+  "/payment",
+  authenticateJWT,
+  authorizeRoles("ADMIN", "PATIENT"),
+  createPaymentIntentController,
+);
+router.get(
+  "/appointment",
+  authenticateJWT,
+  authorizeRoles("ADMIN", "PATIENT"),
+  getAppointmentByPatientIdDetailsController,
+);
 router.get("/doctor/:doctorId", fetchDoctorByIdController);
 router.get("/doctors", fetchFilteredDoctorsController);
+
 export default router;

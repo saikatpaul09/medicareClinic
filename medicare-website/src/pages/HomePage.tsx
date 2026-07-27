@@ -3,8 +3,10 @@ import { Carousel, SearchBySpeciality, Section } from "../components";
 import { carouselItems } from "../constants";
 import { specialties } from "../constants";
 import theme from "../theme";
+import { useNavigate } from "react-router";
 
 export const HomePage = () => {
+  const navigate = useNavigate();
   return (
     <>
       <Carousel items={carouselItems} />
@@ -28,9 +30,11 @@ export const HomePage = () => {
         >
           {specialties.map((specialty) => {
             const IconComponent = specialty.icon;
+            const navigateUrl = `/doctors?specialization=${specialty.value}`;
             return (
               <Box
                 key={specialty.name}
+                onClick={() => navigate(navigateUrl)}
                 sx={{
                   textAlign: "center",
                   border: `1px solid ${theme.palette.divider}`,

@@ -423,7 +423,6 @@ export const EditOrAddDoctorForm = ({
                 label="Male"
               />
               <FormControlLabel
-                required
                 control={
                   <Checkbox
                     checked={formData.gender === "FEMALE"}
