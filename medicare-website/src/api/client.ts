@@ -4,14 +4,14 @@ import { REFRESH_TOKEN } from "./apiRoutes";
 
 // Access the environment variable using import.meta.env
 export const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: "/api",
   headers: {
     "Content-Type": "application/json",
   },
 });
 
 export const apiClientWithAuth = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: "/api",
   headers: {
     "Content-Type": "application/json",
   },

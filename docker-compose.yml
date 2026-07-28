@@ -1,0 +1,49 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:18
+    container_name: medicare-postgres
+
+    restart: always
+
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1@Imunique
+      POSTGRES_DB: mediCare
+
+    ports:
+      - "5433:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ./integration
+
+    container_name: medicare-backend
+
+    depends_on:
+      - postgres
+
+    env_file:
+      - ./integration/.env.production
+
+    ports:
+      - "3000:3000"
+
+  frontend:
+    build:
+      context: ./medicare-website
+
+    container_name: medicare-frontend
+
+    depends_on:
+      - backend
+
+    ports:
+      - "80:80"
+
+volumes:
+  postgres_data:
