@@ -8,6 +8,8 @@ type user = {
   email: string;
   role: string;
 };
+type role = "PATIENT" | "DOCTOR" | "ADMIN" | null;
+
 type userInfo = {
   token: string;
   user: user;
@@ -16,12 +18,12 @@ type userInfo = {
 type LoginStoreState = {
   sideBarRole: SideBarRole;
   userInfo: userInfo;
-  role: string;
+  role: role;
 };
 
 type LoginStoreActions = {
   setUserInfo: (payload: userInfo) => void;
-  setRole: (role: string) => void;
+  setRole: (role: role) => void;
   clearUserInfo: () => void;
   logout: () => void;
   openPopup: (role: SideBarRole) => void;
@@ -36,8 +38,8 @@ const createLoginSlice: StateCreator<ILoginSlice> = (set) => ({
   login: {
     sideBarRole: "",
     userInfo: null,
-    role: "",
-    setRole: (role) => {
+    role: null,
+    setRole: (role: role) => {
       set((state) => ({
         login: {
           ...state.login,
@@ -57,7 +59,7 @@ const createLoginSlice: StateCreator<ILoginSlice> = (set) => ({
       set((state) => ({
         login: {
           ...state.login,
-          role: "",
+          role: null,
           userInfo: null,
         },
       }));

@@ -68,7 +68,7 @@ export const SearchBySpeciality = () => {
             onChange={(_, value) => {
               setSearchState({
                 ...searchState,
-                specialization: value.value,
+                specialization: value.value ?? "",
               });
             }}
             renderInput={(params) => (
@@ -92,7 +92,7 @@ export const SearchBySpeciality = () => {
             onChange={(_, value) =>
               setSearchState({
                 ...searchState,
-                hospital_id: value.value,
+                hospital_id: value?.value,
               })
             }
             sx={{ minWidth: "250px" }}
