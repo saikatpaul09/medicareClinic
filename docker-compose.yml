@@ -3,13 +3,16 @@ version: "3.9"
 services:
   postgres:
     image: postgres:17
+
     container_name: medicare-postgres
 
     restart: unless-stopped
 
     environment:
       POSTGRES_USER: postgres
+
       POSTGRES_PASSWORD: 1@Imunique
+
       POSTGRES_DB: mediCare
 
     ports:
@@ -33,17 +36,19 @@ services:
     ports:
       - "3000:3000"
 
-  frontend:
+  nginx:
     build:
-      context: ./medicare-website
+      context: .
 
-    container_name: medicare-frontend
+      dockerfile: nginx/Dockerfile
+
+    container_name: medicare-nginx
 
     depends_on:
       - backend
 
     ports:
-      - "8080:80"
+      - "80:80"
 
 volumes:
   postgres_data:
