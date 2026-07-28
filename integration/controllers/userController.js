@@ -15,13 +15,7 @@ import { handleResponse } from "../utils/helpers.js";
 
 export const registerUserController = asyncHandler(async (req, res) => {
   const payload = req.body;
-  const REQUIRED_FIELDS = [
-    "firstName",
-    "lastName",
-    "email",
-    "phone",
-    "password",
-  ];
+  const REQUIRED_FIELDS = ["firstName", "lastName", "email", "password"];
   const ALLOWED_FIELDS = [
     "firstName",
     "lastName",
@@ -36,6 +30,7 @@ export const registerUserController = asyncHandler(async (req, res) => {
   const hasAllKeys = REQUIRED_FIELDS.every((key) =>
     Object.hasOwn(payload, key),
   );
+
   if (!hasAllKeys) {
     handleResponse(res, 400, "Missing Fields");
     return;

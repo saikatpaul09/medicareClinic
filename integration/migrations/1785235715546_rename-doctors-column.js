@@ -8,12 +8,8 @@ export const shorthands = undefined;
  * @param run {() => void | undefined}
  * @returns {Promise<void> | void}
  */
-
 export const up = (pgm) => {
-  pgm.createType("doctor_status", ["ACTIVE", "INACTIVE", "ON_LEAVE"]);
-  pgm.addColumns("doctors", {
-    status: { type: "doctor_status", notNull: true, default: "INACTIVE" },
-  });
+  pgm.renameColumn("doctors", "insitution_name", "institution_name");
 };
 
 /**
@@ -22,5 +18,5 @@ export const up = (pgm) => {
  * @returns {Promise<void> | void}
  */
 export const down = (pgm) => {
-  pgm.dropTable("doctors");
+  pgm.renameColumn("doctors", "institution_name", "insitution_name");
 };

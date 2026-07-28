@@ -20,6 +20,8 @@ export const up = (pgm) => {
     contact_number: { type: "varchar(20)", notNull: true },
     created_at: { type: "timestamptz", default: pgm.func("current_timestamp") },
   });
+  pgm.createType("doctor_status", ["ACTIVE", "INACTIVE", "ON_LEAVE"]);
+
   pgm.createTable("doctors", {
     id: {
       type: "uuid",
@@ -38,7 +40,6 @@ export const up = (pgm) => {
       notNull: true,
       references: '"hospitals"',
       onDelete: "CASCADE",
-      unique: true,
     },
     status: { type: "doctor_status", notNull: true, default: "INACTIVE" },
     specialization: { type: "varchar(100)", notNull: true },
@@ -63,6 +64,13 @@ export const up = (pgm) => {
     is_available: { type: "boolean", notNull: true, default: true },
   });
   // 6. Appointments Table
+  pgm.createType("appointment_status", [
+    "Scheduled",
+    "Confirmed",
+    "In_Progress",
+    "Completed",
+    "Cancelled",
+  ]);
   pgm.createTable("appointments", {
     id: {
       type: "uuid",
@@ -95,6 +103,15 @@ export const up = (pgm) => {
     },
   });
   // 7. Transactions Table
+  pgm.createType("payment_status", [
+    "Booked",
+    "Payment_Not_Confirmed",
+    "In_Progress",
+    "Refund",
+    "Pending",
+    "Confirmed",
+    "Failed",
+  ]);
   pgm.createTable("transactions", {
     id: {
       type: "uuid",
