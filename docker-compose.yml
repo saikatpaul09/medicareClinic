@@ -2,10 +2,10 @@ version: "3.9"
 
 services:
   postgres:
-    image: postgres:18
+    image: postgres:17
     container_name: medicare-postgres
 
-    restart: always
+    restart: unless-stopped
 
     environment:
       POSTGRES_USER: postgres
@@ -28,7 +28,7 @@ services:
       - postgres
 
     env_file:
-      - ./integration/.env.production
+      - ./integration/.env.docker
 
     ports:
       - "3000:3000"
@@ -43,7 +43,7 @@ services:
       - backend
 
     ports:
-      - "80:80"
+      - "8080:80"
 
 volumes:
   postgres_data:
