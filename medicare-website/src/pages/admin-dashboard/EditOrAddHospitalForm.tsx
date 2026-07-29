@@ -48,6 +48,7 @@ export const EditOrAddHospitalForm = ({
     contact_number: hospitalData?.contact_number || "",
     pin: hospitalData?.pin || "",
   });
+
   const disabled =
     !formData.name ||
     !formData.state ||

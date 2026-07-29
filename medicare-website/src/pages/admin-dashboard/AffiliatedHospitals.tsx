@@ -201,6 +201,16 @@ export const AffiliatedHospitals = () => {
       headerName: "State",
       type: "string",
       width: 160,
+      valueFormatter: (value: string) => {
+        if (!value) return "";
+        const formatState =
+          value
+            ?.toLowerCase()
+            .split("_")
+            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(" ") || "";
+        return formatState;
+      },
     },
     {
       field: "actions",

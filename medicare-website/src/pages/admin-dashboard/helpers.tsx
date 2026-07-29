@@ -28,17 +28,10 @@ export const patientListMapper = ({ data }) => {
 
 export const hospitalListMapper = ({ data }) => {
   return data?.map((hospital) => {
-    const formatState =
-      hospital?.state
-        ?.toLowerCase()
-        .split("_")
-        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(" ") || "";
     return {
       key: hospital.id,
       id: hospital.id,
       ...hospital,
-      state: formatState,
     };
   });
 };
