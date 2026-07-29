@@ -250,7 +250,7 @@ export const EditOrAddHospitalForm = ({
             color="secondary"
             options={indianStates}
             value={
-              indianStates.filter((state) => state.value === formData.state)[0]
+              indianStates.find((state) => state.value === formData.state)[0]
             }
             onChange={(_, value) =>
               setFormData({

@@ -46,6 +46,7 @@ export const AffiliatedHospitals = () => {
     search: "",
     state: "",
   });
+
   const [pageCursorMap, setPageCursorMap] = useState<
     Record<number, string | null>
   >({

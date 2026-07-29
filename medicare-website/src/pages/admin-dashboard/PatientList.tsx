@@ -45,8 +45,7 @@ export const PatientList = () => {
     },
   });
   const [filtersApply, setFiltersApply] = useState({
-    firstName: "",
-    lastName: "",
+    name: "",
     email: "",
     phone_number: "",
     gender: "",
@@ -110,8 +109,7 @@ export const PatientList = () => {
   const applyFilters = () => {
     resetPagination();
     setFiltersApply({
-      firstName: filters.name.split(" ")[0] || "",
-      lastName: filters.name.split(" ")[1] || "",
+      name: filters.name,
       email: filters.email,
       phone_number: filters.phone_number,
       gender: filters.gender.value,
@@ -129,8 +127,7 @@ export const PatientList = () => {
       },
     });
     setFiltersApply({
-      firstName: "",
-      lastName: "",
+      name: "",
       email: "",
       phone_number: "",
       gender: "",
@@ -289,8 +286,7 @@ export const PatientList = () => {
                       setFilters({ ...filters, name: "" });
                       setFiltersApply({
                         ...filtersApply,
-                        firstName: "",
-                        lastName: "",
+                        name: "",
                       });
                     }}
                     edge="end"
