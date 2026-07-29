@@ -249,9 +249,7 @@ export const EditOrAddHospitalForm = ({
             sx={{ width: 230, marginTop: "6px" }}
             color="secondary"
             options={indianStates}
-            value={
-              indianStates.find((state) => state.value === formData.state)[0]
-            }
+            value={indianStates.find((state) => state.value === formData.state)}
             onChange={(_, value) =>
               setFormData({
                 ...formData,
