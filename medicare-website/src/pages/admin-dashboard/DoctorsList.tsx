@@ -30,7 +30,7 @@ import { useAllHospitalData } from "../../hooks/useAllHospitalData";
 export const DoctorsList = () => {
   const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
     page: 0,
-    pageSize: 30,
+    pageSize: 20,
   });
   const [mode, setMode] = useState(null);
   const [doctorData, setDoctorData] = useState(null);
@@ -90,11 +90,15 @@ export const DoctorsList = () => {
     queryKey: [
       "doctorsList",
       userId,
-      pageCursorMap[paginationModel.page],
       paginationModel.page,
       paginationModel.pageSize,
-      filtersApply,
+      filtersApply.email,
+      filtersApply.license_number,
+      filtersApply.specialization,
+      filtersApply.status,
+      filtersApply.name,
     ],
+    staleTime: 60 * 1000 * 0.5,
     queryFn: getAllDoctorsList,
     placeholderData: keepPreviousData,
   });
@@ -121,8 +125,10 @@ export const DoctorsList = () => {
       name: filters.name,
       email: filters.email,
       license_number: filters.license_number,
-      specialization: filters.specialization.value,
-      status: filters.status.value,
+      specialization: filters.specialization
+        ? filters.specialization.value
+        : "",
+      status: filters.status ? filters.status.value : "",
     });
   };
   const clearFilters = () => {

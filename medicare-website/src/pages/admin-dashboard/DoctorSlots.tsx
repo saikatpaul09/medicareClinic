@@ -23,7 +23,7 @@ import { useNavigate } from "react-router";
 export const DoctorSLots = () => {
   const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
     page: 0,
-    pageSize: 7,
+    pageSize: 20,
   });
   const navigate = useNavigate();
   const [filters, setFilters] = useState({
@@ -80,11 +80,15 @@ export const DoctorSLots = () => {
     queryKey: [
       "doctorsList",
       userId,
-      pageCursorMap[paginationModel.page],
       paginationModel.page,
       paginationModel.pageSize,
-      filtersApply,
+      filtersApply.email,
+      filtersApply.license_number,
+      filtersApply.name,
+      filtersApply.status,
+      filtersApply.specialization,
     ],
+    staleTime: 1000 * 60 * 0.5,
     queryFn: getAllDoctorsList,
     placeholderData: keepPreviousData,
   });
@@ -111,8 +115,10 @@ export const DoctorSLots = () => {
       name: filters.name,
       email: filters.email,
       license_number: filters.license_number,
-      specialization: filters.specialization.value,
-      status: filters.status.value,
+      specialization: filters.specialization
+        ? filters.specialization.value
+        : "",
+      status: filters.status ? filters.status.value : "",
     });
   };
   const clearFilters = () => {

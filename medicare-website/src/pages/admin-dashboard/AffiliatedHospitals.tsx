@@ -29,7 +29,7 @@ import { indianStates } from "../../constants";
 export const AffiliatedHospitals = () => {
   const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
     page: 0,
-    pageSize: 7,
+    pageSize: 5,
   });
   const [mode, setMode] = useState(null);
   const [hospitalData, setHospitalData] = useState(null);
@@ -78,11 +78,12 @@ export const AffiliatedHospitals = () => {
     queryKey: [
       "hospitalList",
       userId,
-      pageCursorMap[paginationModel.page],
       paginationModel.page,
       paginationModel.pageSize,
-      filtersApply,
+      filtersApply.search,
+      filtersApply.state,
     ],
+    staleTime: 60 * 1000 * 0.5,
     queryFn: getAllHospitalList,
     placeholderData: keepPreviousData,
   });
@@ -106,8 +107,8 @@ export const AffiliatedHospitals = () => {
   const applyFilters = () => {
     resetPagination();
     setFiltersApply({
-      search: filters.search,
-      state: filters.state.value,
+      search: filters.search ?? "",
+      state: filters.state ? filters.state.value : "",
     });
   };
   const clearFilters = () => {

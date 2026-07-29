@@ -28,7 +28,7 @@ import { PATIENT_API_ROUTE, PATIENTS_API_ROUTE } from "../../api/apiRoutes";
 export const PatientList = () => {
   const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
     page: 0,
-    pageSize: 7,
+    pageSize: 10,
   });
   const [mode, setMode] = useState(null);
   //doctor and patient data are identical hence same state name
@@ -81,11 +81,14 @@ export const PatientList = () => {
     queryKey: [
       "patientList",
       userId,
-      pageCursorMap[paginationModel.page],
       paginationModel.page,
       paginationModel.pageSize,
-      filtersApply,
+      filtersApply.email,
+      filtersApply.gender,
+      filtersApply.name,
+      filtersApply.phone_number,
     ],
+    staleTime: 1000 * 60 * 0.5,
     queryFn: getAllDoctorsList,
     placeholderData: keepPreviousData,
   });
@@ -112,7 +115,7 @@ export const PatientList = () => {
       name: filters.name,
       email: filters.email,
       phone_number: filters.phone_number,
-      gender: filters.gender.value,
+      gender: filters.gender ? filters.gender.value : "",
     });
   };
   const clearFilters = () => {

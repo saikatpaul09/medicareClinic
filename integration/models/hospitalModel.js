@@ -124,7 +124,7 @@ export const getAllHospitalsService = async ({
   const whereQuery =
     whereClauses.length > 0 ? `WHERE ${whereClauses.join(" AND ")}` : "";
   const countSqlQuery =
-    countClauses.length > 0 ? `WHERE ${whereClauses.join(" AND ")}` : "";
+    countClauses.length > 0 ? `WHERE ${countClauses.join(" AND ")}` : "";
   queryValues.push(limit + 1);
 
   const query = `
