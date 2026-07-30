@@ -13,7 +13,7 @@ import { EMAIL_REGEX } from "../../constants";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import FormGroup from "@mui/material/FormGroup";
 import Typography from "@mui/material/Typography";
-import { PATIENT_API_ROUTE, PROFILE_API_ROUTE } from "../../api/apiRoutes";
+import { PROFILE_API_ROUTE } from "../../api/apiRoutes";
 import { apiClientWithAuth } from "../../api/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader } from "../Loader";
@@ -59,7 +59,7 @@ export const EditProfile = ({
   const { mutate: mutuateUpdateProfile, isPending } = useMutation({
     mutationFn: async (formData: ProfileForm) => {
       const response = await apiClientWithAuth.post(
-        PATIENT_API_ROUTE,
+        PROFILE_API_ROUTE,
         formData,
       );
       return response.data;
@@ -222,7 +222,7 @@ const EditProfilDialogBox = ({
               <FormControlLabel
                 control={
                   <Checkbox
-                    disabled
+                    disabled={!!formData.gender}
                     checked={formData.gender === "MALE"}
                     onChange={() =>
                       setFormData({
