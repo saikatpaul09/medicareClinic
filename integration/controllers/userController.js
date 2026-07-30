@@ -54,15 +54,16 @@ export const registerUserController = asyncHandler(async (req, res) => {
 export const authenticateUserController = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
   try {
+    const secureCookie = process.env.COOKIE_SECURE === "true";
     const user = await authenticateUserService(email, password);
     if (user) {
       const token = generateToken(user);
       const { rawRefreshToken, tokenHash } = generateRefreshToken();
       res.cookie("refreshToken", rawRefreshToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-        maxAge: process.env.JWT_REFRESH_SECRET_EXPIRY, // Convert to milliseconds
+        secure: secureCookie,
+        sameSite: secureCookie ? "none" : "lax",
+        maxAge: Number(process.env.JWT_REFRESH_SECRET_EXPIRY),
       });
       await saveTokenUserService(user, tokenHash);
       handleResponse(res, 200, "Authentication successful", {
