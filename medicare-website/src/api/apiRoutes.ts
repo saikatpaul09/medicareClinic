@@ -17,3 +17,4 @@ export const CONFIRM_BOOKING_API_ROUTE = "/confirm-booking";
 export const GET_APPOINTMENT_BY_ID_ROUTE = "/appointment";
 export const GET_PAYMENT_INTENT_ID = "/payment";
 export const CONFIRM_APPOINTMENT_BOOKING = "/confirm-booking";
+export const ADMIN_GET_APPOINTMENTS = "/appointments";

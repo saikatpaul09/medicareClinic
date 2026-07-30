@@ -12,6 +12,7 @@ import { DoctorBookAppointmentPage } from "./pages/appointment/AppointmentBookin
 import { DoctorsListPage } from "./pages/doctors/DoctorsListPage";
 import { BookPaymentPage } from "./pages/appointment/BookPaymentPage";
 import { MyAppointmentsPage } from "./pages/appointment/MyAppointmentPage";
+import { AppointmentList } from "./pages/admin-dashboard/AppointmentLists";
 
 const queryClient = new QueryClient();
 
@@ -72,6 +73,10 @@ const App = () => {
                 <Route
                   path="/dashboard/patient-list"
                   element={<PatientList />}
+                />
+                <Route
+                  path="/dashboard/appointment-list"
+                  element={<AppointmentList />}
                 />
                 <Route
                   path="/dashboard/hospital-list"

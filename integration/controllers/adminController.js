@@ -12,6 +12,7 @@ import {
   getDoctorSchedulesService,
   updateDoctorSchedulesService,
   getDoctorByIdService,
+  getAllAppointmentsService,
 } from "../models/adminModel.js";
 import { handleResponse } from "../utils/helpers.js";
 export const fetchAllDoctorsController = asyncHandler(async (req, res) => {
@@ -180,6 +181,36 @@ export const fetchDoctorByIdController = asyncHandler(async (req, res) => {
     return handleResponse(res, 200, "Doctor fetched successfully", {
       doctor,
     });
+  } catch (error) {
+    return handleResponse(res, 500, error.message);
+  }
+});
+
+export const getAllAppointmentsController = asyncHandler(async (req, res) => {
+  const role = req?.user?.role;
+  const { filters, limit, nextCursor } = req.body || {};
+  try {
+    const appointmentList = await getAllAppointmentsService({
+      filters,
+      limit,
+      nextCursor,
+      role,
+    });
+    if (!appointmentList || appointmentList.data.length === 0) {
+      return handleResponse(res, 200, "doctor list fetched", {
+        doctors: [],
+        hasMore: false,
+        nextCursor: null,
+      });
+    }
+    if (appointmentList.data.length > 0) {
+      return handleResponse(res, 200, "appointment list fetched", {
+        appointments: appointmentList.data,
+        hasMore: appointmentList.hasMore,
+        nextCursor: appointmentList.nextCursor,
+        totalCount: appointmentList.totalCount,
+      });
+    }
   } catch (error) {
     return handleResponse(res, 500, error.message);
   }

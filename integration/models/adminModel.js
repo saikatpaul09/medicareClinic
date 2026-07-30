@@ -779,3 +779,207 @@ export const updateDoctorSchedulesService = async (doctorId, schedules) => {
     client.release();
   }
 };
+
+export const getAllAppointmentsService = async ({
+  filters = {},
+  limit = 30,
+  nextCursor,
+}) => {
+  const queryValues = [];
+  const countValues = [];
+
+  const whereClauses = [];
+  const countClauses = [];
+
+  const { doctor_id, status, appointmentStart, appointmentEnd } = filters;
+
+  // --------------------------
+  // Limit Guard
+  // --------------------------
+  let safeLimit = parseInt(limit, 10);
+
+  if (isNaN(safeLimit) || safeLimit <= 0) {
+    safeLimit = 10;
+  } else if (safeLimit > MAX_LIMIT) {
+    safeLimit = MAX_LIMIT;
+  }
+
+  // --------------------------
+  // Doctor Filter
+  // --------------------------
+  if (doctor_id) {
+    queryValues.push(doctor_id);
+    countValues.push(doctor_id);
+
+    whereClauses.push(`a.doctor_id = $${queryValues.length}`);
+    countClauses.push(`a.doctor_id = $${countValues.length}`);
+  }
+
+  // --------------------------
+  // Status Filter
+  // --------------------------
+  if (status) {
+    queryValues.push(status);
+    countValues.push(status);
+
+    whereClauses.push(`a.status = $${queryValues.length}`);
+    countClauses.push(`a.status = $${countValues.length}`);
+  }
+
+  // --------------------------
+  // Appointment Start
+  // --------------------------
+  if (appointmentStart) {
+    queryValues.push(appointmentStart);
+    countValues.push(appointmentStart);
+
+    whereClauses.push(
+      `a.appointment_datetime >= $${queryValues.length}::timestamptz`,
+    );
+
+    countClauses.push(
+      `a.appointment_datetime >= $${countValues.length}::timestamptz`,
+    );
+  }
+
+  // --------------------------
+  // Appointment End
+  // --------------------------
+  if (appointmentEnd) {
+    queryValues.push(appointmentEnd);
+    countValues.push(appointmentEnd);
+
+    whereClauses.push(
+      `a.appointment_datetime < $${queryValues.length}::timestamptz`,
+    );
+
+    countClauses.push(
+      `a.appointment_datetime < $${countValues.length}::timestamptz`,
+    );
+  }
+
+  // --------------------------
+  // Cursor Pagination
+  // --------------------------
+  if (nextCursor) {
+    const decoded = JSON.parse(
+      Buffer.from(nextCursor, "base64").toString("utf8"),
+    );
+
+    queryValues.push(decoded.appointmentDatetime, decoded.id);
+
+    whereClauses.push(`
+      (a.appointment_datetime, a.id)
+      >
+      ($${queryValues.length - 1}::timestamptz,
+       $${queryValues.length}::uuid)
+    `);
+  }
+
+  // --------------------------
+  // WHERE
+  // --------------------------
+  const whereSql = whereClauses.length
+    ? `WHERE ${whereClauses.join(" AND ")}`
+    : "";
+
+  const countSql = countClauses.length
+    ? `WHERE ${countClauses.join(" AND ")}`
+    : "";
+  // --------------------------
+  // LIMIT
+  // --------------------------
+  queryValues.push(safeLimit + 1);
+
+  const limitIndex = queryValues.length;
+
+  // --------------------------
+  // Main Query
+  // --------------------------
+  const query = `
+    SELECT
+        a.id,
+        a.patient_id,
+        a.doctor_id,
+        a.appointment_datetime,
+        a.status,
+        a.created_at,
+        a.updated_at,
+        doctor_user."firstName" AS doctor_first_name,
+        doctor_user."lastName" AS doctor_last_name,
+        patient_user."firstName" AS patient_first_name,
+        patient_user."lastName" AS patient_last_name,
+        doc.specialization,
+        doc.degree_name,
+        h.id AS hospital_id,
+        h.name AS hospital_name,
+        t.id AS transaction_id,
+        t.amount,
+        t.payment_status,
+        t.payment_method
+
+    FROM appointments a
+
+    INNER JOIN doctors doc
+        ON doc.user_id = a.doctor_id
+
+    INNER JOIN users doctor_user
+       ON doctor_user.id = doc.user_id
+
+    INNER JOIN users patient_user
+       ON patient_user.id = a.patient_id
+
+    INNER JOIN hospitals h
+        ON h.id = doc.hospital_id
+
+    LEFT JOIN transactions t
+        ON t.appointment_id = a.id
+
+    ${whereSql}
+
+    ORDER BY
+        a.appointment_datetime ASC,
+        a.id ASC
+
+    LIMIT $${limitIndex};
+  `;
+  // --------------------------
+  // Count Query
+  // --------------------------
+  const countQuery = `
+    SELECT COUNT(*) AS total
+
+    FROM appointments a
+
+    ${countSql};
+  `;
+
+  const result = await pool.query(query, queryValues);
+  const countResult = await pool.query(countQuery, countValues);
+
+  const rows = result.rows;
+
+  const hasMore = rows.length > safeLimit;
+
+  let newCursor = null;
+
+  if (hasMore) {
+    rows.pop();
+
+    const lastVisible = rows[rows.length - 1];
+
+    newCursor = Buffer.from(
+      JSON.stringify({
+        appointmentDatetime: lastVisible.appointment_datetime.toISOString(),
+        id: lastVisible.id,
+      }),
+    ).toString("base64");
+  }
+
+  return {
+    data: rows,
+    hasMore,
+    nextCursor: newCursor,
+    totalCount: Number(countResult.rows[0].total),
+  };
+};

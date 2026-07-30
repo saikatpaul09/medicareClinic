@@ -24,7 +24,7 @@ const sidebarContent = [
   {
     id: "All Appointments",
     icon: CalendarMonthIcon,
-    url: "/dashboard/appointments",
+    url: "/dashboard/appointment-list",
   },
   {
     id: "Doctors List",

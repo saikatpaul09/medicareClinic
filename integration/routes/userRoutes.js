@@ -25,6 +25,7 @@ import {
   updateDoctorSchedulesController,
   getDoctorSchedulesController,
   fetchDoctorByIdController,
+  getAllAppointmentsController,
 } from "../controllers/adminController.js";
 import {
   updateHospitalController,
@@ -168,5 +169,11 @@ router.get(
 );
 router.get("/doctor/:doctorId", fetchDoctorByIdController);
 router.get("/doctors", fetchFilteredDoctorsController);
+router.post(
+  "/appointments",
+  authenticateJWT,
+  authorizeRoles("ADMIN"),
+  getAllAppointmentsController,
+);
 
 export default router;
