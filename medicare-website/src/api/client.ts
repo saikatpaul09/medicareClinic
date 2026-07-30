@@ -21,7 +21,7 @@ export const apiClientWithAuth = axios.create({
 // Secondary isolated instance specifically for handling refreshes
 // This prevents infinite loop traps if the refresh endpoint itself throws a 401
 const apiRefresh = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: "/api",
   withCredentials: true,
 });
 
