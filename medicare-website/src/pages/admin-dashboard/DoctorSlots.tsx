@@ -161,6 +161,16 @@ export const DoctorSLots = () => {
       headerName: "Specialization",
       type: "string",
       width: 250,
+      renderCell: (params) => {
+        const specialization =
+          params.row.specialization.charAt(0).toUpperCase() +
+          params.row.specialization.slice(1).toLowerCase();
+        const specializationUpplerLowercase = specialization?.replaceAll(
+          "_",
+          " ",
+        );
+        return <div>{specializationUpplerLowercase}</div>;
+      },
     },
     {
       field: "license_number",
