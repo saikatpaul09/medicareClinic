@@ -63,10 +63,11 @@ export const MyAccount = () => {
       },
     },
     {
-      id: "health-records",
-      label: "Health Records",
+      id: "ai-assistant",
+      label: "AI Assistant",
       icon: <AudioFileRoundedIcon />,
       onClick: () => {
+        navigate("/ai-assistant");
         closePopup();
       },
     },

@@ -3,7 +3,7 @@ import MuiButton, { type ButtonProps } from "@mui/material/Button";
 interface CustomButtonProps extends ButtonProps {
   children: React.ReactNode;
   variant?: "contained" | "outlined" | "text";
-  color?: "primary" | "secondary";
+  color?: "primary" | "secondary" | "error" | "info" | "success" | "warning";
   sx?: object;
   onClick?: () => void;
 }

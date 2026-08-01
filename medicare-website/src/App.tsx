@@ -13,6 +13,7 @@ import { DoctorsListPage } from "./pages/doctors/DoctorsListPage";
 import { BookPaymentPage } from "./pages/appointment/BookPaymentPage";
 import { MyAppointmentsPage } from "./pages/appointment/MyAppointmentPage";
 import { AppointmentList } from "./pages/admin-dashboard/AppointmentLists";
+import AIAssistantPage from "./pages/AIAssistantPage";
 
 const queryClient = new QueryClient();
 
@@ -38,6 +39,7 @@ const App = () => {
                 path="/doctors"
                 element={<DoctorsListPage />}
               />
+              <Route path="/ai-assistant" element={<AIAssistantPage />} />
               <Route element={<ProtectedRoute allowedRoles={["PATIENT"]} />}>
                 <Route
                   index={true}

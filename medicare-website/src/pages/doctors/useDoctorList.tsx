@@ -6,16 +6,19 @@ import { DOCTORS_API_ROUTE } from "../../api/apiRoutes";
 interface FetchDoctorsParams {
   pageParam?: string | null;
   filters: DoctorFilters;
+  limit?: number;
 }
 
 const fetchDoctors = async ({
   pageParam,
   filters,
+  limit = 20,
 }: FetchDoctorsParams): Promise<DoctorsResponse> => {
   const response = await apiClient.get(DOCTORS_API_ROUTE, {
     params: {
       ...filters,
       nextCursor: pageParam,
+      limit,
     },
   });
 
@@ -30,6 +33,7 @@ export const useDoctorsList = (filters: DoctorFilters) => {
       fetchDoctors({
         pageParam,
         filters,
+        limit: 20,
       }),
 
     initialPageParam: null as string | null,

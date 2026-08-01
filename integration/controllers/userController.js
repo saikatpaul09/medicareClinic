@@ -210,16 +210,19 @@ export const updatePatientDetailsController = asyncHandler(async (req, res) => {
 });
 
 export const fetchFilteredDoctorsController = asyncHandler(async (req, res) => {
-  const role = req?.user?.role;
   const {
+    name,
     specialization,
     hospital_id,
     gender,
     consultation_fee,
     experience,
     nextCursor,
+    limit,
   } = req.query || {};
+
   const filters = {
+    name,
     specialization,
     hospital_id,
     gender,
@@ -231,6 +234,7 @@ export const fetchFilteredDoctorsController = asyncHandler(async (req, res) => {
     const doctorsListObj = await getFilteredDoctorsListService({
       filters,
       nextCursor,
+      limit,
     });
     if (!doctorsListObj || doctorsListObj.data.length === 0) {
       return handleResponse(res, 200, "doctor list fetched", {

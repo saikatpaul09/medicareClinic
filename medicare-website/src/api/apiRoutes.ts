@@ -18,3 +18,4 @@ export const GET_APPOINTMENT_BY_ID_ROUTE = "/appointment";
 export const GET_PAYMENT_INTENT_ID = "/payment";
 export const CONFIRM_APPOINTMENT_BOOKING = "/confirm-booking";
 export const ADMIN_GET_APPOINTMENTS = "/appointments";
+export const AI_ROUTE = "/ai/chat";

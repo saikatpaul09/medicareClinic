@@ -137,15 +137,35 @@ export const updatePatientProfileDetails = async (userId, updateFields) => {
 export const getFilteredDoctorsListService = async ({
   filters = {},
   nextCursor,
+  limit = 5,
 }) => {
   const queryValues = ["DOCTOR"];
   const countValues = ["DOCTOR"];
   let whereClauses = ["u.role = $1"];
   let countClauses = ["u.role = $1"];
   // Filters sourced directly from the URL query string
-  const { specialization, hospital_id, gender, consultation_fee, experience } =
-    filters;
-  let safeLimit = 20;
+  const {
+    name,
+    specialization,
+    hospital_id,
+    gender,
+    consultation_fee,
+    experience,
+  } = filters;
+  let safeLimit = parseInt(limit, 10);
+
+  if (name) {
+    queryValues.push(`%${name.trim()}%`);
+    countValues.push(`%${name.trim()}%`);
+
+    whereClauses.push(
+      `CONCAT_WS(' ', u."firstName", u."lastName") ILIKE $${queryValues.length}`,
+    );
+
+    countClauses.push(
+      `CONCAT_WS(' ', u."firstName", u."lastName") ILIKE $${countValues.length}`,
+    );
+  }
   if (specialization) {
     queryValues.push(specialization);
     countValues.push(specialization);
